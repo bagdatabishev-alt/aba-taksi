@@ -567,10 +567,26 @@ function downloadArchive(key){
 // ── CHAT ──
 function renderChatUsers(){
   var el=document.getElementById('chat-user-list');
+  // If allUsers is empty, load from DB directly
+  if(!Object.keys(allUsers).length){
+    if(!DB){el.innerHTML='<div class="empty">Firebase жүктелуде...</div>';return}
+    DB.ref('users').once('value',function(snap){
+      snap.forEach(function(c){allUsers[c.key]=c.val()});
+      renderChatUsers();
+    });
+    return;
+  }
   var users=Object.values(allUsers);
   if(!users.length){el.innerHTML='<div class="empty">Қолданушылар жоқ</div>';return}
   el.innerHTML=users.map(function(u){
-    return '<div class="chat-user-item '+(curChatUser===u.id?'active':'')+'" onclick="openChat(\''+u.id+'\',\''+u.name.replace(/'/g,"\\'")+'\')">'+(u.photo?'<img src="'+u.photo+'" style="width:38px;height:38px;object-fit:cover;border-radius:50%">':'<div style="width:38px;height:38px;background:var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--dark);font-weight:800;font-size:13px">'+u.name.slice(0,2).toUpperCase()+'</div>')+'<div><div style="font-size:13px;font-weight:700">'+u.name+'</div><div style="font-size:11px;color:var(--muted)">'+(u.role==='driver'?'🚗 Жүргізуші':'🙋 Жолаушы')+' • '+u.phone+'</div></div></div>';
+    return '<div class="chat-user-item '+(curChatUser===u.id?'active':'')+'" onclick="openChat(\''+u.id+'\',\''+u.name.replace(/'/g,"\\'")+'\')">'+
+      (u.photo?'<img src="'+u.photo+'" style="width:38px;height:38px;object-fit:cover;border-radius:50%">':
+        '<div style="width:38px;height:38px;background:var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--dark);font-weight:800;font-size:13px">'+u.name.slice(0,2).toUpperCase()+'</div>')+
+      '<div>'+
+        '<div style="font-size:13px;font-weight:700">'+u.name+'</div>'+
+        '<div style="font-size:11px;color:var(--muted)">'+(u.role==='driver'?'🚗 Жүргізуші':'🙋 Жолаушы')+' • '+u.phone+'</div>'+
+      '</div>'+
+    '</div>';
   }).join('');
 }
 
@@ -611,6 +627,7 @@ function switchTab(name){
   document.getElementById('tab-'+name).classList.add('active');
   if(name==='archive')loadArchive();
   if(name==='stats')renderStats();
+  if(name==='chat'){renderChatUsers();}
 }
 
 // ── STATISTICS ──
