@@ -319,6 +319,7 @@
     </div>
   </div>
   <div class="profile-list">
+    <div class="profile-item" onclick="openAdminChat()"><span class="profile-item-icon">💬</span><span class="profile-item-text">Админмен чат <span id="admin-chat-badge" style="background:var(--danger);color:white;border-radius:10px;padding:2px 7px;font-size:11px;font-weight:700;display:none">жаңа</span></span><span>›</span></div>
     <div class="profile-item" onclick="toast('Kaspi QR жақын арада')"><span class="profile-item-icon">💳</span><span class="profile-item-text">Төлем әдістері</span><span>›</span></div>
     <div class="profile-item" onclick="toast('support@abagroup.kz')"><span class="profile-item-icon">❓</span><span class="profile-item-text">Қолдау қызметі</span><span>›</span></div>
   </div>
@@ -389,6 +390,21 @@
     <div class="field"><label>Мемлекеттік номер</label><input type="text" id="car-plate" placeholder="A 777 BC"/></div>
     <div class="field"><label>Жүргізуші куәлігі №</label><input type="text" id="car-license" placeholder="12345678"/></div>
     <button class="btn-primary" onclick="saveCar()">💾 Сақтау</button>
+  </div>
+</div>
+
+<!-- ADMIN CHAT MODAL -->
+<div class="modal-overlay" id="admin-chat-modal" onclick="if(event.target.id==='admin-chat-modal')document.getElementById('admin-chat-modal').classList.remove('open')">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">💬 Қолдау қызметі (Админ)</div>
+    <div id="admin-chat-msgs" style="height:260px;overflow-y:auto;padding:4px;display:flex;flex-direction:column;gap:8px;margin-bottom:12px">
+      <div style="text-align:center;color:var(--muted);font-size:12px;padding:20px">Хабар жоқ</div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <input id="admin-chat-inp" style="flex:1;background:var(--dark3);border:1px solid var(--dark4);border-radius:8px;padding:10px 12px;color:var(--text);font-family:Manrope,sans-serif;font-size:13px;outline:none" placeholder="Хабар жазыңыз..." onkeydown="if(event.key==='Enter')sendToAdmin()"/>
+      <button onclick="sendToAdmin()" style="background:var(--gold);border:none;border-radius:8px;padding:10px 14px;font-weight:800;cursor:pointer;font-size:14px">➤</button>
+    </div>
   </div>
 </div>
 
@@ -464,6 +480,38 @@ window.onload=function(){
 
 // ── UTILS ──
 function show(id){document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active')});document.getElementById('screen-'+id).classList.add('active')}
+// ── ADMIN CHAT ──
+function openAdminChat(){
+  if(!U)return;
+  document.getElementById('admin-chat-modal').classList.add('open');
+  loadAdminChat();
+}
+function loadAdminChat(){
+  if(!U||!window.DB)return;
+  window.DB.ref('admin_chats/'+U.id).on('value',function(snap){
+    var el=document.getElementById('admin-chat-msgs');if(!el)return;
+    var msgs=[];snap.forEach(function(c){msgs.push(c.val())});
+    if(!msgs.length){el.innerHTML='<div style="text-align:center;color:var(--muted);font-size:12px;padding:20px">Хабар жоқ. Сұрағыңызды жазыңыз!</div>';return}
+    el.innerHTML=msgs.map(function(m){
+      var isAdmin=m.from==='admin';
+      return '<div style="align-self:'+(isAdmin?'flex-start':'flex-end')+';max-width:80%">'+
+        '<div style="background:'+(isAdmin?'var(--dark3)':'var(--gold)')+';color:'+(isAdmin?'var(--text)':'var(--dark)')+';padding:8px 12px;border-radius:12px;font-size:13px">'+m.text+'</div>'+
+        '<div style="font-size:10px;color:var(--muted);margin-top:2px;text-align:'+(isAdmin?'left':'right')+'">'+(isAdmin?'👑 Админ':'Сіз')+' • '+new Date(m.time).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})+'</div>'+
+      '</div>';
+    }).join('');
+    el.scrollTop=el.scrollHeight;
+    var badge=document.getElementById('admin-chat-badge');
+    if(badge)badge.style.display='none';
+  });
+}
+function sendToAdmin(){
+  if(!U||!window.DB)return;
+  var inp=document.getElementById('admin-chat-inp');
+  var text=inp.value.trim();if(!text)return;
+  window.DB.ref('admin_chats/'+U.id).push({text:text,from:U.id,senderName:U.name.split(' ')[0],time:Date.now()});
+  inp.value='';
+}
+
 function toast(m){var el=document.getElementById('toast');el.textContent=m;el.classList.add('show');setTimeout(function(){el.classList.remove('show')},3000)}
 function saveSess(u){localStorage.setItem('aba_s',JSON.stringify(u))}
 function getSess(){try{return JSON.parse(localStorage.getItem('aba_s'))}catch(e){return null}}
