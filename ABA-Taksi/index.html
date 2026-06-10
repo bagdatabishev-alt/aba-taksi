@@ -366,6 +366,7 @@
     <button class="nav-btn active" onclick="show('driver');setupDriver()"><span class="nav-icon">🏠</span>Басты</button>
     <button class="nav-btn" onclick="goHistory()"><span class="nav-icon">📋</span>Тарих</button>
     <button class="nav-btn" onclick="goPassenger()"><span class="nav-icon">🙋</span>Жолаушы</button>
+    <button class="nav-btn" onclick="openDriverAdminChat()"><span class="nav-icon">💬</span>Қолдау</button>
     <button class="nav-btn" onclick="driverProfile()"><span class="nav-icon">👤</span>Профиль</button>
   </div>
 </div>
@@ -895,7 +896,15 @@ function goDriver(){
   ROLE='driver';U.role='driver';saveSess(U);DB.ref('users/'+U.id).update({role:'driver'});setupDriver();show('driver');toast('🚗 Жүргізуші режимі');
 }
 function goHistory(){ROLE=U.role;loadHistory();show('history')}
-function driverProfile(){if(confirm(U.name+'\n'+U.phone+'\n\nШығу?'))logout()}
+function driverProfile(){
+  if(confirm(U.name+'\n'+U.phone+'\n\nШығу?'))logout();
+}
+
+function openDriverAdminChat(){
+  if(!U)return;
+  document.getElementById('admin-chat-modal').classList.add('open');
+  loadAdminChat();
+}
 
 // ── CAR ──
 function openCarModal(){
