@@ -149,6 +149,16 @@
   <div class="splash-sub">Сенімді такси қызметі</div>
 </div>
 
+<!-- CITY SELECT -->
+<div id="screen-city" class="screen">
+  <div style="padding:32px 22px 20px">
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:38px;color:var(--gold);letter-spacing:2px;margin-bottom:4px">🌍 ҚАЛА ТАҢДАҢЫЗ</div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:24px">Сіз қай қалада такси пайдаланасыз?</div>
+    <input id="city-search" style="width:100%;background:var(--dark3);border:1.5px solid var(--dark4);border-radius:10px;padding:12px 14px;color:var(--text);font-family:Manrope,sans-serif;font-size:14px;outline:none;margin-bottom:16px" placeholder="🔍 Қала іздеу..." oninput="filterCities(this.value)"/>
+    <div id="city-list"></div>
+  </div>
+</div>
+
 <!-- AUTH -->
 <div id="screen-auth" class="screen">
   <div style="margin-bottom:24px">
@@ -415,28 +425,130 @@
 // ── CONFIG ──
 var FB_CONFIG={apiKey:"AIzaSyC-1odJDeZBGSMClhe9sN7lJ-8wYZkyzVw",authDomain:"aba-group-taksi-go.firebaseapp.com",databaseURL:"https://aba-group-taksi-go-default-rtdb.firebaseio.com",projectId:"aba-group-taksi-go",storageBucket:"aba-group-taksi-go.firebasestorage.app",messagingSenderId:"734948093057",appId:"1:734948093057:web:866c74d8857a6938eb7180"};
 
-// ── LOCATIONS ──
-var LOCS=[
-  {i:'🏥',n:'Аурухана',a:'Қабанбай ауылы',lat:46.0768,lng:82.0758},
-  {i:'🏫',n:'№1 Мектеп',a:'Қабанбай ауылы',lat:46.0772,lng:82.0765},
-  {i:'🏫',n:'№2 Мектеп',a:'Қабанбай ауылы',lat:46.0765,lng:82.0770},
-  {i:'🏪',n:'Базар',a:'Қабанбай ауылы',lat:46.0770,lng:82.0762},
-  {i:'🏛️',n:'Әкімдік',a:'Қабанбай ауылы',lat:46.0769,lng:82.0760},
-  {i:'🏢',n:'Пошта',a:'Қабанбай ауылы',lat:46.0771,lng:82.0763},
-  {i:'⛽',n:'АЗС',a:'Қабанбай ауылы',lat:46.0775,lng:82.0755},
-  {i:'🏖️',n:'Жарбулақ жағажайы',a:'Жарбулақ, Алакөл',lat:46.0820,lng:82.0680},
-  {i:'🏖️',n:'Жаланаш жағажайы',a:'Алакөл жағалауы',lat:45.5929,lng:82.1768},
-  {i:'🚉',n:'Жаланашкөл теміржол бекеті',a:'Жаланашкөл → Қабанбай',lat:45.5929,lng:82.1768},
-  {i:'💊',n:'Дәріхана',a:'Қабанбай ауылы',lat:46.0768,lng:82.0764},
-  {i:'🌊',n:'Алакөл санаторийі',a:'Жарбулақ',lat:46.0810,lng:82.0690},
-  {i:'🏨',n:'Мейманхана',a:'Қабанбай ауылы',lat:46.0770,lng:82.0760},
-  {i:'⛪',n:'Мешіт',a:'Қабанбай ауылы',lat:46.0767,lng:82.0758},
-  {i:'🏋️',n:'Спорт кешені',a:'Қабанбай ауылы',lat:46.0773,lng:82.0766},
-  {i:'🌳',n:'Орталық саябақ',a:'Қабанбай ауылы',lat:46.0769,lng:82.0761},
-  {i:'🏠',n:'1-ші аудан',a:'Қабанбай ауылы',lat:46.0774,lng:82.0768},
-  {i:'🏠',n:'2-ші аудан',a:'Қабанбай ауылы',lat:46.0766,lng:82.0756},
-  {i:'🏠',n:'Жаңа аудан',a:'Қабанбай ауылы',lat:46.0780,lng:82.0770},
-];
+// ── CITIES ──
+var CITIES={
+  'kabanbay':{name:'Қабанбай ауылы',country:'🇰🇿 Қазақстан',lat:46.0770,lng:82.0762,locs:[
+    {i:'🏥',n:'Аурухана',a:'Қабанбай ауылы',lat:46.0768,lng:82.0758},
+    {i:'🏫',n:'№1 Мектеп',a:'Қабанбай ауылы',lat:46.0772,lng:82.0765},
+    {i:'🏫',n:'№2 Мектеп',a:'Қабанбай ауылы',lat:46.0765,lng:82.0770},
+    {i:'🏪',n:'Базар',a:'Қабанбай ауылы',lat:46.0770,lng:82.0762},
+    {i:'🏛️',n:'Әкімдік',a:'Қабанбай ауылы',lat:46.0769,lng:82.0760},
+    {i:'🏢',n:'Пошта',a:'Қабанбай ауылы',lat:46.0771,lng:82.0763},
+    {i:'⛽',n:'АЗС',a:'Қабанбай ауылы',lat:46.0775,lng:82.0755},
+    {i:'🏖️',n:'Жарбулақ жағажайы',a:'Жарбулақ, Алакөл',lat:46.0820,lng:82.0680},
+    {i:'🏖️',n:'Жаланаш жағажайы',a:'Алакөл жағалауы',lat:45.5929,lng:82.1768},
+    {i:'🚉',n:'Жаланашкөл теміржол бекеті',a:'Жаланашкөл → Қабанбай',lat:45.5929,lng:82.1768},
+    {i:'💊',n:'Дәріхана',a:'Қабанбай ауылы',lat:46.0768,lng:82.0764},
+    {i:'🌊',n:'Алакөл санаторийі',a:'Жарбулақ',lat:46.0810,lng:82.0690},
+    {i:'🏨',n:'Мейманхана',a:'Қабанбай ауылы',lat:46.0770,lng:82.0760},
+    {i:'🏠',n:'1-ші аудан',a:'Қабанбай ауылы',lat:46.0774,lng:82.0768},
+    {i:'🏠',n:'2-ші аудан',a:'Қабанбай ауылы',lat:46.0766,lng:82.0756},
+    {i:'🏠',n:'Жаңа аудан',a:'Қабанбай ауылы',lat:46.0780,lng:82.0770},
+  ]},
+  'almaty':{name:'Алматы',country:'🇰🇿 Қазақстан',lat:43.2220,lng:76.8512,locs:[
+    {i:'✈️',n:'Алматы әуежайы',a:'Алматы',lat:43.3521,lng:77.0405},
+    {i:'🏛️',n:'Республика алаңы',a:'Алматы орталығы',lat:43.2220,lng:76.8512},
+    {i:'🛍️',n:'Mega Mall',a:'Алматы',lat:43.2089,lng:76.8894},
+    {i:'🏥',n:'Орталық аурухана',a:'Алматы',lat:43.2354,lng:76.9102},
+    {i:'🎓',n:'Әл-Фараби университеті',a:'Алматы',lat:43.2096,lng:76.8973},
+    {i:'🚉',n:'Алматы-1 вокзалы',a:'Алматы',lat:43.2576,lng:76.9478},
+    {i:'🌳',n:'Горький бақшасы',a:'Алматы',lat:43.2640,lng:76.9310},
+  ]},
+  'astana':{name:'Астана',country:'🇰🇿 Қазақстан',lat:51.1801,lng:71.4460,locs:[
+    {i:'✈️',n:'Астана әуежайы',a:'Астана',lat:51.0222,lng:71.4669},
+    {i:'🏛️',n:'Байтерек монументі',a:'Астана',lat:51.1280,lng:71.4306},
+    {i:'🛍️',n:'Khan Shatyr',a:'Астана',lat:51.1318,lng:71.4053},
+    {i:'🏥',n:'Ұлттық медициналық орталық',a:'Астана',lat:51.1801,lng:71.4460},
+    {i:'🚉',n:'Астана вокзалы',a:'Астана',lat:51.1737,lng:71.3709},
+    {i:'🏢',n:'Үкімет үйі',a:'Астана',lat:51.1265,lng:71.4306},
+  ]},
+  'karaganda':{name:'Қарағанды',country:'🇰🇿 Қазақстан',lat:49.8047,lng:73.1094,locs:[
+    {i:'✈️',n:'Қарағанды әуежайы',a:'Қарағанды',lat:49.6708,lng:73.3344},
+    {i:'🏛️',n:'Орталық алаң',a:'Қарағанды',lat:49.8047,lng:73.1094},
+    {i:'🛍️',n:'Keruen сауда орталығы',a:'Қарағанды',lat:49.8012,lng:73.0876},
+    {i:'🚉',n:'Қарағанды вокзалы',a:'Қарағанды',lat:49.8312,lng:73.1656},
+    {i:'🏥',n:'Облыстық аурухана',a:'Қарағанды',lat:49.8156,lng:73.0987},
+  ]},
+  'semey':{name:'Семей',country:'🇰🇿 Қазақстан',lat:50.4111,lng:80.2275,locs:[
+    {i:'✈️',n:'Семей әуежайы',a:'Семей',lat:50.3513,lng:80.2344},
+    {i:'🏛️',n:'Орталық алаң',a:'Семей',lat:50.4111,lng:80.2275},
+    {i:'🚉',n:'Семей вокзалы',a:'Семей',lat:50.4234,lng:80.2456},
+    {i:'🏥',n:'Семей медициналық университеті',a:'Семей',lat:50.4089,lng:80.2198},
+    {i:'🌉',n:'Иртыш көпірі',a:'Семей',lat:50.4167,lng:80.2333},
+  ]},
+  'oskemen':{name:'Өскемен',country:'🇰🇿 Қазақстан',lat:49.9483,lng:82.6189,locs:[
+    {i:'✈️',n:'Өскемен әуежайы',a:'Өскемен',lat:49.9944,lng:82.4944},
+    {i:'🏛️',n:'Орталық алаң',a:'Өскемен',lat:49.9483,lng:82.6189},
+    {i:'🚉',n:'Өскемен вокзалы',a:'Өскемен',lat:49.9567,lng:82.6012},
+    {i:'🛍️',n:'Сити Молл',a:'Өскемен',lat:49.9423,lng:82.6234},
+    {i:'🏥',n:'Облыстық аурухана',a:'Өскемен',lat:49.9512,lng:82.6145},
+  ]},
+  'urdzhar':{name:'Үржар',country:'🇰🇿 Қазақстан',lat:47.0956,lng:81.6278,locs:[
+    {i:'🏛️',n:'Әкімдік',a:'Үржар',lat:47.0956,lng:81.6278},
+    {i:'🏥',n:'Аурухана',a:'Үржар',lat:47.0934,lng:81.6245},
+    {i:'🏪',n:'Базар',a:'Үржар',lat:47.0967,lng:81.6290},
+    {i:'🚉',n:'Үржар теміржол бекеті',a:'Үржар',lat:47.0912,lng:81.6189},
+    {i:'🏫',n:'Мектеп',a:'Үржар',lat:47.0978,lng:81.6312},
+  ]},
+  'taldykorgan':{name:'Талдықорған',country:'🇰🇿 Қазақстан',lat:45.0173,lng:78.3733,locs:[
+    {i:'✈️',n:'Талдықорған әуежайы',a:'Талдықорған',lat:45.1244,lng:78.4467},
+    {i:'🏛️',n:'Орталық алаң',a:'Талдықорған',lat:45.0173,lng:78.3733},
+    {i:'🚉',n:'Талдықорған вокзалы',a:'Талдықорған',lat:45.0234,lng:78.3812},
+    {i:'🏥',n:'Облыстық аурухана',a:'Талдықорған',lat:45.0145,lng:78.3678},
+  ]},
+  'shymkent':{name:'Шымкент',country:'🇰🇿 Қазақстан',lat:42.3417,lng:69.5901,locs:[
+    {i:'✈️',n:'Шымкент әуежайы',a:'Шымкент',lat:42.3642,lng:69.4789},
+    {i:'🏛️',n:'Орталық алаң',a:'Шымкент',lat:42.3417,lng:69.5901},
+    {i:'🛍️',n:'Mega Shymkent',a:'Шымкент',lat:42.3389,lng:69.5712},
+    {i:'🚉',n:'Шымкент вокзалы',a:'Шымkent',lat:42.3512,lng:69.6123},
+    {i:'🏥',n:'Облыстық аурухана',a:'Шымкент',lat:42.3356,lng:69.5834},
+  ]},
+  'atyrau':{name:'Атырау',country:'🇰🇿 Қазақстан',lat:47.1167,lng:51.9000,locs:[
+    {i:'✈️',n:'Атырау әуежайы',a:'Атырау',lat:47.1211,lng:51.8234},
+    {i:'🏛️',n:'Орталық алаң',a:'Атырау',lat:47.1167,lng:51.9000},
+    {i:'🚉',n:'Атырау вокзалы',a:'Атырау',lat:47.1234,lng:51.9123},
+    {i:'🏥',n:'Облыстық аурухана',a:'Атырau',lat:47.1145,lng:51.8934},
+    {i:'🌊',n:'Жайық өзені жағалауы',a:'Атырау',lat:47.1189,lng:51.9045},
+  ]},
+  'makhanshi':{name:'Мақаншы',country:'🇰🇿 Қазақстан',lat:46.4989,lng:82.6018,locs:[
+    {i:'🏛️',n:'Әкімдік',a:'Мақаншы',lat:46.4989,lng:82.6018},
+    {i:'🏥',n:'Аурухана',a:'Мақаншы',lat:46.4967,lng:82.5989},
+    {i:'🏪',n:'Базар',a:'Мақаншы',lat:46.5001,lng:82.6034},
+    {i:'🚉',n:'Мақаншы теміржол бекеті',a:'Мақаншы',lat:46.4934,lng:82.5912},
+  ]},
+  'zharbulak':{name:'Жарбулақ',country:'🇰🇿 Қазақстан',lat:46.0820,lng:82.0680,locs:[
+    {i:'🏖️',n:'Жарбулақ жағажайы',a:'Алакөл жағалауы',lat:46.0820,lng:82.0680},
+    {i:'🌊',n:'Алакөл санаторийі',a:'Жарбулақ',lat:46.0810,lng:82.0690},
+    {i:'🏨',n:'Мейманхана',a:'Жарбулақ',lat:46.0815,lng:82.0685},
+    {i:'🚉',n:'Жаланашкөл бекеті',a:'Жаланашкөл',lat:45.5929,lng:82.1768},
+  ]},
+  'pittsburgh':{name:'Pittsburgh',country:'🇺🇸 АҚШ',lat:40.4406,lng:-79.9959,locs:[
+    {i:'✈️',n:'Pittsburgh Airport',a:'Pittsburgh, PA',lat:40.4915,lng:-80.2329},
+    {i:'🏛️',n:'Downtown Pittsburgh',a:'Pittsburgh, PA',lat:40.4406,lng:-79.9959},
+    {i:'🏥',n:'UPMC Medical Center',a:'Pittsburgh, PA',lat:40.4412,lng:-79.9617},
+    {i:'🎓',n:'University of Pittsburgh',a:'Pittsburgh, PA',lat:40.4444,lng:-79.9533},
+    {i:'🏟️',n:'PNC Park',a:'Pittsburgh, PA',lat:40.4468,lng:-80.0057},
+    {i:'🛍️',n:'Station Square',a:'Pittsburgh, PA',lat:40.4301,lng:-80.0034},
+  ]},
+  'bishkek':{name:'Бішкек',country:'🇰🇬 Қырғызстан',lat:42.8746,lng:74.5698,locs:[
+    {i:'✈️',n:'Манас әуежайы',a:'Бішкек',lat:42.9474,lng:74.4776},
+    {i:'🏛️',n:'Ала-Тоо алаңы',a:'Бішкек орталығы',lat:42.8746,lng:74.5698},
+    {i:'🛍️',n:'Dordoi Bazaar',a:'Бішкек',lat:42.9234,lng:74.6123},
+    {i:'🏥',n:'Ұлттық аурухана',a:'Бішкек',lat:42.8712,lng:74.5634},
+    {i:'🎓',n:'КРСУ университеті',a:'Бішкек',lat:42.8689,lng:74.5923},
+  ]},
+  'tashkent':{name:'Ташкент',country:'🇺🇿 Өзбекстан',lat:41.2995,lng:69.2401,locs:[
+    {i:'✈️',n:'Ташкент әуежайы',a:'Ташкент',lat:41.2579,lng:69.2812},
+    {i:'🏛️',n:'Мустақиллик алаңы',a:'Ташкент орталығы',lat:41.2995,lng:69.2401},
+    {i:'🕌',n:'Хазрати Имом мешіті',a:'Ташкент',lat:41.3123,lng:69.2567},
+    {i:'🛍️',n:'Chorsu Bazaar',a:'Ташкент',lat:41.3267,lng:69.2345},
+    {i:'🚇',n:'Ташкент метро',a:'Ташкент',lat:41.2989,lng:69.2378},
+    {i:'🏥',n:'Республикалық аурухана',a:'Ташкент',lat:41.2934,lng:69.2312},
+  ]},
+};
+
+var CUR_CITY='kabanbay';
+var LOCS=CITIES[CUR_CITY].locs;
 
 // ── STATE ──
 var U=null,ROLE=null,SEL_ROLE='passenger';
@@ -470,8 +582,85 @@ function loadFirebase(){
 
 function onFBReady(){
   var s=getSess();
-  if(s){U=s;ROLE=s.role;enterApp()}
-  else{show('auth')}
+  if(s){
+    U=s;ROLE=s.role;CUR_CITY=s.city||'kabanbay';
+    LOCS=CITIES[CUR_CITY]?CITIES[CUR_CITY].locs:CITIES['kabanbay'].locs;
+    enterApp();
+  } else {
+    loadActiveCities(function(){show('city')});
+  }
+}
+
+// ── CITY FUNCTIONS ──
+var activeCities={};
+
+function loadActiveCities(cb){
+  DB.ref('active_cities').once('value',function(snap){
+    if(snap.exists()&&Object.keys(snap.val()).length>0){
+      activeCities=snap.val();
+    } else {
+      // Default - only kabanbay active
+      activeCities={'kabanbay':true};
+    }
+    renderCityList(Object.keys(activeCities));
+    if(cb)cb();
+  });
+}
+
+function renderCityList(keys){
+  var el=document.getElementById('city-list');
+  if(!el)return;
+  if(!keys.length){
+    el.innerHTML='<div style="text-align:center;color:var(--muted);padding:40px;font-size:14px">Белсенді қалалар жоқ.<br>Админге хабарласыңыз.</div>';
+    return;
+  }
+  // Group by country
+  var groups={};
+  keys.forEach(function(key){
+    var city=CITIES[key];if(!city)return;
+    if(!groups[city.country])groups[city.country]=[];
+    groups[city.country].push({key:key,city:city});
+  });
+  var html='';
+  Object.keys(groups).forEach(function(country){
+    html+='<div style="font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;margin-top:16px">'+country+'</div>';
+    groups[country].forEach(function(item){
+      html+='<div onclick="selectCity(\''+item.key+'\')" style="display:flex;align-items:center;gap:14px;padding:14px;background:var(--dark2);border-radius:12px;margin-bottom:8px;cursor:pointer;border:2px solid var(--dark4);transition:border-color .2s" onmouseover="this.style.borderColor=\'var(--gold)\'" onmouseout="this.style.borderColor=\'var(--dark4)\'">'
+        +'<div style="font-size:28px">🏙️</div>'
+        +'<div><div style="font-size:16px;font-weight:700">'+item.city.name+'</div>'
+        +'<div style="font-size:12px;color:var(--muted);margin-top:2px">'+item.city.country+'</div></div>'
+        +'<div style="margin-left:auto;color:var(--gold);font-size:20px">›</div>'
+        +'</div>';
+    });
+  });
+  el.innerHTML=html;
+}
+
+function filterCities(q){
+  var keys=Object.keys(activeCities);
+  if(!q){renderCityList(keys);return}
+  q=q.toLowerCase();
+  var filtered=keys.filter(function(key){
+    var city=CITIES[key];
+    return city&&(city.name.toLowerCase().indexOf(q)>=0||city.country.toLowerCase().indexOf(q)>=0);
+  });
+  renderCityList(filtered);
+}
+
+function selectCity(cityKey){
+  CUR_CITY=cityKey;
+  LOCS=CITIES[cityKey]?CITIES[cityKey].locs:CITIES['kabanbay'].locs;
+  // Save city in session
+  var s=getSess();
+  if(s){s.city=cityKey;saveSess(s)}
+  show('auth');
+}
+
+// Add city to session when logging in
+function enterApp(){
+  if(!U.city)U.city=CUR_CITY;
+  if(ROLE==='driver'){setupDriver();show('driver')}
+  else{setupHome();show('home')}
 }
 
 window.onload=function(){
