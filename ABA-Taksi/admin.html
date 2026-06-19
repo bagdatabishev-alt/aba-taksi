@@ -205,6 +205,15 @@
     <div class="driver-stats-list" id="driver-stats-list"></div>
   </div>
 
+  <!-- CITIES -->
+  <div id="tab-cities" class="tab-content">
+    <div class="section">
+      <div style="font-size:14px;font-weight:800;margin-bottom:4px">🌍 Қала басқару</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:16px">Белсенді қалаларды қосыңыз немесе өшіріңіз. Тек белсенді қалалар қолданушыларға көрінеді.</div>
+      <div id="cities-list"></div>
+    </div>
+  </div>
+
   <!-- DRIVERS -->
   <div id="tab-drivers" class="tab-content active">
     <div class="section">
@@ -628,7 +637,13 @@ function switchTab(name){
   document.getElementById('tab-'+name).classList.add('active');
   if(name==='archive')loadArchive();
   if(name==='stats')renderStats();
-  if(name==='chat'){renderChatUsers();}
+  if(name==='chat')renderChatUsers();
+  if(name==='cities')loadCities();
+}
+
+function initAdmin(){
+  loadUsers();loadOrders();loadArchive();loadCities();
+  setTimeout(function(){renderStats()},1200);
 }
 
 // ── STATISTICS ──
@@ -744,6 +759,41 @@ function renderDriverStats(){
     return '<div class="driver-stat-item"><div class="driver-stat-rank">'+(medals[i]||'#'+(i+1))+'</div>'+(u.photo?'<img src="'+u.photo+'" style="width:40px;height:40px;object-fit:cover;border-radius:50%">':'<div style="width:40px;height:40px;background:var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--dark);font-weight:800;font-size:14px">'+u.name.slice(0,2).toUpperCase()+'</div>')+'<div class="driver-stat-info"><div class="driver-stat-name">'+u.name+'</div><div class="driver-stat-sub">'+(u.trips||0)+' сапар • ⭐'+(u.rating||5.0)+(u.carModel?' • '+u.carModel:'')+'</div></div><div class="driver-stat-earn">'+(u.earn||0).toLocaleString()+' ₸</div></div>';
   }).join('');
 }
+// ── CITIES ──
+var ALL_CITIES={'kabanbay':{name:'Қабанбай ауылы',country:'🇰🇿 Қазақстан'},'zharbulak':{name:'Жарбулақ',country:'🇰🇿 Қазақстан'},'makhanshi':{name:'Мақаншы',country:'🇰🇿 Қазақстан'},'urdzhar':{name:'Үржар',country:'🇰🇿 Қазақстан'},'almaty':{name:'Алматы',country:'🇰🇿 Қазақстан'},'astana':{name:'Астана',country:'🇰🇿 Қазақстан'},'karaganda':{name:'Қарағанды',country:'🇰🇿 Қазақстан'},'semey':{name:'Семей',country:'🇰🇿 Қазақстан'},'oskemen':{name:'Өскемен',country:'🇰🇿 Қазақстан'},'taldykorgan':{name:'Талдықорған',country:'🇰🇿 Қазақстан'},'shymkent':{name:'Шымкент',country:'🇰🇿 Қазақстан'},'atyrau':{name:'Атырау',country:'🇰🇿 Қазақстан'},'pittsburgh':{name:'Pittsburgh',country:'🇺🇸 АҚШ'},'bishkek':{name:'Бішкек',country:'🇰🇬 Қырғызстан'},'tashkent':{name:'Ташкент',country:'🇺🇿 Өзбекстан'}};
+var activeCitiesAdmin={};
+
+function loadCities(){
+  DB.ref('active_cities').on('value',function(snap){
+    activeCitiesAdmin=snap.exists()?snap.val():{};
+    renderCitiesAdmin();
+  });
+}
+
+function renderCitiesAdmin(){
+  var el=document.getElementById('cities-list');if(!el)return;
+  var html='';
+  var groups={};
+  Object.keys(ALL_CITIES).forEach(function(key){
+    var c=ALL_CITIES[key];
+    if(!groups[c.country])groups[c.country]=[];
+    groups[c.country].push({key:key,city:c});
+  });
+  Object.keys(groups).forEach(function(country){
+    html+='<div style="font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:1px;margin:16px 0 8px">'+country+'</div>';
+    groups[country].forEach(function(item){
+      var isActive=!!activeCitiesAdmin[item.key];
+      html+='<div style="display:flex;align-items:center;gap:12px;padding:14px;background:var(--dark2);border-radius:12px;margin-bottom:8px;border:2px solid '+(isActive?'var(--success)':'var(--dark4)')+'"><div style="font-size:22px">🏙️</div><div style="flex:1"><div style="font-size:14px;font-weight:700">'+item.city.name+'</div><div style="font-size:11px;color:var(--muted)">'+item.city.country+'</div></div><span style="font-size:11px;font-weight:700;padding:3px 10px;border-radius:10px;background:'+(isActive?'rgba(34,212,122,.15)':'rgba(122,122,144,.15)')+';color:'+(isActive?'var(--success)':'var(--muted)')+'margin-right:8px">'+(isActive?'🟢 Белсенді':'⚫ Өшірулі')+'</span><button onclick="toggleCity(\''+item.key+'\','+isActive+')" style="background:'+(isActive?'rgba(255,77,109,.15)':'rgba(34,212,122,.15)')+';color:'+(isActive?'var(--danger)':'var(--success)')+';border:none;border-radius:8px;padding:8px 14px;font-family:Manrope,sans-serif;font-weight:700;font-size:12px;cursor:pointer">'+(isActive?'🚫 Өшіру':'✅ Қосу')+'</button></div>';
+    });
+  });
+  el.innerHTML=html;
+}
+
+function toggleCity(cityKey,isActive){
+  if(isActive){DB.ref('active_cities/'+cityKey).remove();toast('🚫 '+ALL_CITIES[cityKey].name+' өшірілді')}
+  else{DB.ref('active_cities/'+cityKey).set(true);toast('✅ '+ALL_CITIES[cityKey].name+' қосылды')}
+}
+
 function toast(msg){var el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');setTimeout(function(){el.classList.remove('show')},3500)}
 </script>
 </body>
