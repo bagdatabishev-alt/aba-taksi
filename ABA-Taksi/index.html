@@ -550,6 +550,29 @@ var CITIES={
 var CUR_CITY='kabanbay';
 var LOCS=CITIES[CUR_CITY].locs;
 
+// ── CURRENCY & TARIFFS ──
+var CITY_CURRENCY={
+  'kabanbay':{symbol:'₸',code:'KZT',tariffs:[{icon:'🚗',name:'Эконом',price:600,time:'~5 мин'},{icon:'🚙',name:'Комфорт',price:900,time:'~4 мин'},{icon:'🏎️',name:'Бизнес',price:1400,time:'~7 мин'},{icon:'🚐',name:'Жүк',price:500,time:'~10 мин'}]},
+  'zharbulak':{symbol:'₸',code:'KZT',tariffs:[{icon:'🚗',name:'Эконом',price:600,time:'~5 мин'},{icon:'🚙',name:'Комфорт',price:900,time:'~4 мин'},{icon:'🏎️',name:'Бизнес',price:1400,time:'~7 мин'},{icon:'🚐',name:'Жүк',price:500,time:'~10 мин'}]},
+  'makhanshi':{symbol:'₸',code:'KZT',tariffs:[{icon:'🚗',name:'Эконом',price:600,time:'~5 мин'},{icon:'🚙',name:'Комфорт',price:900,time:'~4 мін'},{icon:'🏎️',name:'Бизнес',price:1400,time:'~7 мін'},{icon:'🚐',name:'Жүк',price:500,time:'~10 мін'}]},
+  'urdzhar':{symbol:'₸',code:'KZT',tariffs:[{icon:'🚗',name:'Эконом',price:700,time:'~5 мін'},{icon:'🚙',name:'Комфорт',price:1000,time:'~4 мін'},{icon:'🏎️',name:'Бизнес',price:1500,time:'~7 мін'},{icon:'🚐',name:'Жүк',price:600,time:'~10 мін'}]},
+  'almaty':{symbol:'₸',code:'KZT',tariffs:[{icon:'🚗',name:'Эконом',price:1200,time:'~5 мін'},{icon:'🚙',name:'Комфорт',price:1800,time:'~4 мін'},{icon:'🏎️',name:'Бизнес',price:3000,time:'~7 мін'},{icon:'🚐',name:'Жүк',price:1000,time:'~10 мін'}]},
+  'astana':{symbol:'₸',code:'KZT',tariffs:[{icon:'🚗',name:'Эконом',price:1100,time:'~5 мін'},{icon:'🚙',name:'Комфорт',price:1700,time:'~4 мін'},{icon:'🏎️',name:'Бизнес',price:2800,time:'~7 мін'},{icon:'🚐',name:'Жүк',price:900,time:'~10 мін'}]},
+  'karaganda':{symbol:'₸',code:'KZT',tariffs:[{icon:'🚗',name:'Эконом',price:900,time:'~5 мін'},{icon:'🚙',name:'Комфорт',price:1400,time:'~4 мін'},{icon:'🏎️',name:'Бизнес',price:2200,time:'~7 мін'},{icon:'🚐',name:'Жүк',price:800,time:'~10 мін'}]},
+  'semey':{symbol:'₸',code:'KZT',tariffs:[{icon:'🚗',name:'Эконом',price:800,time:'~5 мін'},{icon:'🚙',name:'Комфорт',price:1200,time:'~4 мін'},{icon:'🏎️',name:'Бизнес',price:2000,time:'~7 мін'},{icon:'🚐',name:'Жүк',price:700,time:'~10 мін'}]},
+  'oskemen':{symbol:'₸',code:'KZT',tariffs:[{icon:'🚗',name:'Эконом',price:800,time:'~5 мін'},{icon:'🚙',name:'Комфорт',price:1200,time:'~4 мін'},{icon:'🏎️',name:'Бизнес',price:2000,time:'~7 мін'},{icon:'🚐',name:'Жүк',price:700,time:'~10 мін'}]},
+  'taldykorgan':{symbol:'₸',code:'KZT',tariffs:[{icon:'🚗',name:'Эконом',price:900,time:'~5 мін'},{icon:'🚙',name:'Комфорт',price:1400,time:'~4 мін'},{icon:'🏎️',name:'Бизнес',price:2200,time:'~7 мін'},{icon:'🚐',name:'Жүк',price:800,time:'~10 мін'}]},
+  'shymkent':{symbol:'₸',code:'KZT',tariffs:[{icon:'🚗',name:'Эконом',price:1000,time:'~5 мін'},{icon:'🚙',name:'Комфорт',price:1500,time:'~4 мін'},{icon:'🏎️',name:'Бизнес',price:2500,time:'~7 мін'},{icon:'🚐',name:'Жүк',price:900,time:'~10 мін'}]},
+  'atyrau':{symbol:'₸',code:'KZT',tariffs:[{icon:'🚗',name:'Эконом',price:1000,time:'~5 мін'},{icon:'🚙',name:'Комфорт',price:1500,time:'~4 мін'},{icon:'🏎️',name:'Бизнес',price:2500,time:'~7 мін'},{icon:'🚐',name:'Жүк',price:900,time:'~10 мін'}]},
+  'pittsburgh':{symbol:'$',code:'USD',tariffs:[{icon:'🚗',name:'Economy',price:8,time:'~5 min'},{icon:'🚙',name:'Comfort',price:14,time:'~4 min'},{icon:'🏎️',name:'Business',price:25,time:'~7 min'},{icon:'🚐',name:'Cargo',price:6,time:'~10 min'}]},
+  'bishkek':{symbol:'с',code:'KGS',tariffs:[{icon:'🚗',name:'Эконом',price:200,time:'~5 мин'},{icon:'🚙',name:'Комфорт',price:350,time:'~4 мин'},{icon:'🏎️',name:'Бизнес',price:600,time:'~7 мин'},{icon:'🚐',name:'Груз',price:180,time:'~10 мин'}]},
+  'tashkent':{symbol:'сўм',code:'UZS',tariffs:[{icon:'🚗',name:'Эконом',price:15000,time:'~5 мин'},{icon:'🚙',name:'Комфорт',price:25000,time:'~4 мин'},{icon:'🏎️',name:'Бизнес',price:40000,time:'~7 мин'},{icon:'🚐',name:'Груз',price:12000,time:'~10 мин'}]},
+};
+
+function getCurrency(){return CITY_CURRENCY[CUR_CITY]||CITY_CURRENCY['kabanbay']}
+function getCurrencySymbol(){return getCurrency().symbol}
+function getTariffs(){return getCurrency().tariffs}
+
 // ── STATE ──
 var U=null,ROLE=null,SEL_ROLE='passenger';
 var FROM=null,TO=null,FROM_GEO=null,TO_GEO=null;
@@ -581,10 +604,15 @@ function loadFirebase(){
 }
 
 function onFBReady(){
+  // Restore city
+  var savedCity=localStorage.getItem('aba_city');
+  if(savedCity&&CITIES[savedCity]){
+    CUR_CITY=savedCity;
+    LOCS=CITIES[savedCity].locs;
+  }
   var s=getSess();
   if(s){
-    U=s;ROLE=s.role;CUR_CITY=s.city||'kabanbay';
-    LOCS=CITIES[CUR_CITY]?CITIES[CUR_CITY].locs:CITIES['kabanbay'].locs;
+    U=s;ROLE=s.role;
     enterApp();
   } else {
     loadActiveCities(function(){show('city')});
@@ -650,15 +678,18 @@ function filterCities(q){
 function selectCity(cityKey){
   CUR_CITY=cityKey;
   LOCS=CITIES[cityKey]?CITIES[cityKey].locs:CITIES['kabanbay'].locs;
-  // Save city in session
-  var s=getSess();
-  if(s){s.city=cityKey;saveSess(s)}
+  // Save city to localStorage
+  localStorage.setItem('aba_city',cityKey);
   show('auth');
 }
 
-// Add city to session when logging in
 function enterApp(){
-  if(!U.city)U.city=CUR_CITY;
+  // Apply city from localStorage
+  var savedCity=localStorage.getItem('aba_city');
+  if(savedCity&&CITIES[savedCity]){
+    CUR_CITY=savedCity;
+    LOCS=CITIES[savedCity].locs;
+  }
   if(ROLE==='driver'){setupDriver();show('driver')}
   else{setupHome();show('home')}
 }
@@ -782,7 +813,26 @@ function setupHome(){
   else pa.textContent=ini(U.name);
   document.getElementById('profile-name').textContent=U.name;
   document.getElementById('profile-phone').textContent=U.phone;
+  renderTariffs();
   loadOnlineCount();
+}
+
+function renderTariffs(){
+  var tariffs=getTariffs();
+  var sym=getCurrencySymbol();
+  var el=document.querySelector('.tariff-cards');
+  if(!el)return;
+  el.innerHTML=tariffs.map(function(t,i){
+    return '<div class="tariff-card'+(i===0?' active':'')+'" onclick="setTariff(this,'+t.price+',\''+t.name+'\')">'+
+      '<div class="tariff-icon">'+t.icon+'</div>'+
+      '<div class="tariff-name">'+t.name+'</div>'+
+      '<div class="tariff-price">'+t.price+' '+sym+'</div>'+
+      '<div class="tariff-time">'+t.time+'</div>'+
+    '</div>';
+  }).join('');
+  // Set default tariff
+  TARIFF={name:tariffs[0].name,price:tariffs[0].price};
+  updatePrice();
 }
 
 function loadOnlineCount(){
@@ -805,8 +855,9 @@ function setTariff(el,price,name){
   el.classList.add('active');TARIFF={name:name,price:price};updatePrice();
 }
 function updatePrice(){
-  if(!FROM||!TO){document.getElementById('total-price').textContent='— ₸';document.getElementById('price-note').textContent='Маршрут таңдалмаған';return}
-  document.getElementById('total-price').textContent=TARIFF.price+' ₸';
+  var sym=getCurrencySymbol();
+  if(!FROM||!TO){document.getElementById('total-price').textContent='— '+sym;document.getElementById('price-note').textContent='Маршрут таңдалмаған';return}
+  document.getElementById('total-price').textContent=TARIFF.price+' '+sym;
   document.getElementById('price-note').textContent=TARIFF.name+' тарифі';
 }
 
