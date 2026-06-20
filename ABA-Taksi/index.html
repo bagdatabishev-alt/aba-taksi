@@ -884,22 +884,22 @@ var DISTANCE_CITIES=['almaty','astana','karaganda','semey','oskemen','taldykorga
 
 // Әр қала тарифтері: базалық + км бойынша
 var CITY_RATES={
-  'almaty':     {Economy:{base:300,perKm:150,min:500},Комфорт:{base:500,perKm:220,min:800},Бизнес:{base:800,perKm:350,min:1500},Жүк:{base:400,perKm:180,min:700}},
-  'astana':     {Economy:{base:300,perKm:140,min:500},Комфорт:{base:450,perKm:200,min:750},Бизнес:{base:750,perKm:320,min:1400},Жүк:{base:350,perKm:160,min:650}},
-  'karaganda':  {Economy:{base:200,perKm:120,min:400},Комфорт:{base:350,perKm:180,min:600},Бизнес:{base:600,perKm:280,min:1200},Жүк:{base:300,perKm:140,min:550}},
-  'semey':      {Economy:{base:200,perKm:110,min:400},Комфорт:{base:320,perKm:170,min:580},Бизнес:{base:550,perKm:260,min:1100},Жүк:{base:280,perKm:130,min:500}},
-  'oskemen':    {Economy:{base:200,perKm:110,min:400},Комфорт:{base:320,perKm:170,min:580},Бизнес:{base:550,perKm:260,min:1100},Жүк:{base:280,perKm:130,min:500}},
-  'taldykorgan':{Economy:{base:220,perKm:120,min:420},Комфорт:{base:340,perKm:180,min:600},Бизнес:{base:580,perKm:270,min:1150},Жүк:{base:290,perKm:140,min:520}},
-  'shymkent':   {Economy:{base:250,perKm:130,min:450},Комфорт:{base:380,perKm:190,min:650},Бизнес:{base:650,perKm:300,min:1300},Жүк:{base:320,perKm:150,min:580}},
-  'atyrau':     {Economy:{base:250,perKm:130,min:450},Комфорт:{base:380,perKm:190,min:650},Бизнес:{base:650,perKm:300,min:1300},Жүк:{base:320,perKm:150,min:580}},
-  'urdzhar':    {Economy:{base:150,perKm:100,min:350},Комфорт:{base:280,perKm:160,min:550},Бизнес:{base:500,perKm:240,min:1000},Жүк:{base:250,perKm:120,min:450}},
-  'makhanshi':  {Economy:{base:150,perKm:100,min:350},Комфорт:{base:280,perKm:160,min:550},Бизнес:{base:500,perKm:240,min:1000},Жүк:{base:250,perKm:120,min:450}},
-  'pittsburgh': {Economy:{base:2.50,perKm:1.50,min:5},Комфорт:{base:3.50,perKm:2.00,min:8},Бизнес:{base:5.00,perKm:3.00,min:15},Жүк:{base:4.00,perKm:1.80,min:8}},
-  'bishkek':    {Economy:{base:50,perKm:30,min:100},Комфорт:{base:80,perKm:45,min:160},Бизнес:{base:130,perKm:70,min:280},Жүк:{base:60,perKm:35,min:120}},
-  'tashkent':   {Economy:{base:3000,perKm:2000,min:8000},Комфорт:{base:5000,perKm:3000,min:12000},Бизнес:{base:8000,perKm:5000,min:20000},Жүк:{base:4000,perKm:2500,min:10000}},
+  'almaty':     {'Эконом':{base:300,perKm:150,min:500},'Комфорт':{base:500,perKm:220,min:800},'Бизнес':{base:800,perKm:350,min:1500},'Жүк':{base:400,perKm:180,min:700}},
+  'astana':     {'Эконом':{base:300,perKm:140,min:500},'Комфорт':{base:450,perKm:200,min:750},'Бизнес':{base:750,perKm:320,min:1400},'Жүк':{base:350,perKm:160,min:650}},
+  'karaganda':  {'Эконом':{base:200,perKm:120,min:400},'Комфорт':{base:350,perKm:180,min:600},'Бизнес':{base:600,perKm:280,min:1200},'Жүк':{base:300,perKm:140,min:550}},
+  'semey':      {'Эконом':{base:200,perKm:110,min:400},'Комфорт':{base:320,perKm:170,min:580},'Бизнес':{base:550,perKm:260,min:1100},'Жүк':{base:280,perKm:130,min:500}},
+  'oskemen':    {'Эконом':{base:200,perKm:110,min:400},'Комфорт':{base:320,perKm:170,min:580},'Бизнес':{base:550,perKm:260,min:1100},'Жүк':{base:280,perKm:130,min:500}},
+  'taldykorgan':{'Эконом':{base:220,perKm:120,min:420},'Комфорт':{base:340,perKm:180,min:600},'Бизнес':{base:580,perKm:270,min:1150},'Жүк':{base:290,perKm:140,min:520}},
+  'shymkent':   {'Эконом':{base:250,perKm:130,min:450},'Комфорт':{base:380,perKm:190,min:650},'Бизнес':{base:650,perKm:300,min:1300},'Жүк':{base:320,perKm:150,min:580}},
+  'atyrau':     {'Эконом':{base:250,perKm:130,min:450},'Комфорт':{base:380,perKm:190,min:650},'Бизнес':{base:650,perKm:300,min:1300},'Жүк':{base:320,perKm:150,min:580}},
+  'urdzhar':    {'Эконом':{base:150,perKm:100,min:350},'Комфорт':{base:280,perKm:160,min:550},'Бизнес':{base:500,perKm:240,min:1000},'Жүк':{base:250,perKm:120,min:450}},
+  'makhanshi':  {'Эконом':{base:150,perKm:100,min:350},'Комфорт':{base:280,perKm:160,min:550},'Бизнес':{base:500,perKm:240,min:1000},'Жүк':{base:250,perKm:120,min:450}},
+  'pittsburgh': {'Economy':{base:2.50,perKm:1.50,min:5},'Comfort':{base:3.50,perKm:2.00,min:8},'Business':{base:5.00,perKm:3.00,min:15},'Cargo':{base:4.00,perKm:1.80,min:8}},
+  'bishkek':    {'Эконом':{base:50,perKm:30,min:100},'Комфорт':{base:80,perKm:45,min:160},'Бизнес':{base:130,perKm:70,min:280},'Груз':{base:60,perKm:35,min:120}},
+  'tashkent':   {'Эконом':{base:3000,perKm:2000,min:8000},'Комфорт':{base:5000,perKm:3000,min:12000},'Бизнес':{base:8000,perKm:5000,min:20000},'Груз':{base:4000,perKm:2500,min:10000}},
 };
 
-function calcDistancePrice(from,to){
+function calcDistancePrice(from,to,tariffName){
   var R=6371;
   var dLat=(to.lat-from.lat)*Math.PI/180;
   var dLng=(to.lng-from.lng)*Math.PI/180;
@@ -908,13 +908,24 @@ function calcDistancePrice(from,to){
   var timeMin=Math.round(distKm/30*60);
   var rates=CITY_RATES[CUR_CITY];
   if(!rates)return null;
-  // Match tariff name
-  var rateKey=Object.keys(rates).find(function(k){return k===TARIFF.name||k.toLowerCase()===TARIFF.name.toLowerCase()});
-  var rate=rates[rateKey||Object.keys(rates)[0]];
+  var tName=tariffName||TARIFF.name;
+  // Find matching rate key (case insensitive, partial match)
+  var rateKey=Object.keys(rates).find(function(k){
+    return k===tName||k.toLowerCase()===tName.toLowerCase()||
+           tName.toLowerCase().indexOf(k.toLowerCase())>=0||
+           k.toLowerCase().indexOf(tName.toLowerCase())>=0;
+  });
+  // If no match, use index from tariffs array
+  if(!rateKey){
+    var tariffs=getTariffs();
+    var idx=tariffs.findIndex(function(t){return t.name===tName});
+    if(idx>=0)rateKey=Object.keys(rates)[idx];
+    else rateKey=Object.keys(rates)[0];
+  }
+  var rate=rates[rateKey];
   var price=rate.base+(distKm*rate.perKm);
   price=Math.max(price,rate.min);
   var sym=getCurrencySymbol();
-  // Round nicely
   if(sym==='$')price=Math.round(price*100)/100;
   else price=Math.round(price/10)*10;
   return {price:price,distKm:distKm.toFixed(1),timeMin:timeMin,sym:sym};
@@ -940,11 +951,10 @@ function updatePrice(){
   // Үлкен қалалар — қашықтық бойынша
   if(isDistCity&&FROM_GEO&&TO_GEO){
     var tariffs=getTariffs();
-    var savedTariff=TARIFF;
+    var savedTariff={name:TARIFF.name,price:TARIFF.price};
     // Show price on each tariff card
     tariffs.forEach(function(t,i){
-      TARIFF={name:t.name,price:t.price};
-      var result=calcDistancePrice(FROM_GEO,TO_GEO);
+      var result=calcDistancePrice(FROM_GEO,TO_GEO,t.name);
       if(result){
         var cards=document.querySelectorAll('.tariff-card');
         if(cards[i]){
@@ -959,9 +969,9 @@ function updatePrice(){
         }
       }
     });
-    // Restore and calculate for selected tariff
+    // Calculate for selected tariff
     TARIFF=savedTariff;
-    var finalResult=calcDistancePrice(FROM_GEO,TO_GEO);
+    var finalResult=calcDistancePrice(FROM_GEO,TO_GEO,TARIFF.name);
     if(finalResult){
       TARIFF.price=finalResult.price;
       document.getElementById('total-price').textContent=finalResult.price+' '+sym;
