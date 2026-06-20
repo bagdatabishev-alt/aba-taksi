@@ -986,7 +986,7 @@ function placeOrder(){
   var toC=TO_GEO?TO_GEO.lat+','+TO_GEO.lng:TO;
   var ref=DB.ref('orders').push();
   ORDER_ID=ref.key;
-  ref.set({passengerId:U.id,passengerName:U.name,passengerPhone:U.phone,from:FROM,to:TO,fromCoord:fromC,toCoord:toC,tariff:TARIFF.name,price:TARIFF.price,status:'waiting',createdAt:Date.now()});
+  ref.set({passengerId:U.id,passengerName:U.name,passengerPhone:U.phone,from:FROM,to:TO,fromCoord:fromC,toCoord:toC,tariff:TARIFF.name,price:TARIFF.price,currency:getCurrencySymbol(),city:CUR_CITY,status:'waiting',createdAt:Date.now()});
   DB.ref('orders/'+ORDER_ID).on('value',function(snap){
     var d=snap.val();if(!d)return;
     if(d.status==='accepted'){
@@ -999,7 +999,7 @@ function placeOrder(){
       document.getElementById('ride-plate').textContent=d.driverPlate||'—';
       document.getElementById('ride-rating').textContent=d.driverRating||'5.0';
       document.getElementById('ride-eta').textContent=(d.eta||5)+' мин';
-      document.getElementById('ride-price2').textContent=d.price+' ₸';
+      document.getElementById('ride-price2').textContent=d.price+' '+(d.currency||'₸');
       CHAT_KEY=ORDER_ID;loadChat('passenger');
       show('riding');
     }
@@ -1185,7 +1185,7 @@ function completeTrip(orderKey,price){
   DB.ref('orders/'+orderKey).update({status:'completed'});
   if(CHAT_KEY)DB.ref('chats/'+CHAT_KEY).off();
   CHAT_KEY=null;
-  toast('Сапар аяқталды! +'+price+' ₸');
+  toast('Сапар аяқталды! +'+price+' '+(getCurrencySymbol()||'₸'));
   showWaiting();
 }
 
