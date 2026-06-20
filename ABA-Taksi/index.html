@@ -284,6 +284,7 @@
       <div class="action-row">
         <button class="btn-icon" onclick="callDriver()">📞<span>Қоңырау</span></button>
         <button class="btn-icon" onclick="toggleChat()">💬<span>Чат</span></button>
+        <button class="btn-icon" id="sos-btn" style="display:none;background:rgba(255,77,109,.2)" onclick="activateSOS()">🆘<span>SOS</span></button>
         <button class="btn-icon btn-danger" onclick="cancelOrder()">✕<span>Бас тарту</span></button>
       </div>
     </div>
@@ -684,14 +685,27 @@ function selectCity(cityKey){
 }
 
 function enterApp(){
-  // Apply city from localStorage
   var savedCity=localStorage.getItem('aba_city');
-  if(savedCity&&CITIES[savedCity]){
-    CUR_CITY=savedCity;
-    LOCS=CITIES[savedCity].locs;
-  }
+  if(savedCity&&CITIES[savedCity]){CUR_CITY=savedCity;LOCS=CITIES[savedCity].locs}
+  loadAppSettings();
   if(ROLE==='driver'){setupDriver();show('driver')}
   else{setupHome();show('home')}
+}
+
+function activateSOS(){
+  if(confirm('🆘 SOS сигналын жіберу керек пе?\n\n112 қоңырау шалынады және орныңыз Админге жіберіледі!')){
+    // Call 112
+    window.location.href='tel:112';
+    // Send alert to admin
+    if(U&&window.DB){
+      window.DB.ref('sos_alerts').push({
+        userId:U.id,userName:U.name,phone:U.phone,
+        orderId:ORDER_ID||null,time:Date.now(),
+        message:'🆘 ШҰҒЫЛ! '+U.name+' ('+U.phone+') SOS сигналын жіберді!'
+      });
+    }
+    toast('🆘 SOS жіберілді! 112 қоңырауланды');
+  }
 }
 
 window.onload=function(){
@@ -701,7 +715,54 @@ window.onload=function(){
 
 // ── UTILS ──
 function show(id){document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active')});document.getElementById('screen-'+id).classList.add('active')}
-// ── ADMIN CHAT ──
+// ── APP SETTINGS ──
+var APP_SETTINGS={};
+
+function loadAppSettings(){
+  if(!window.DB)return;
+  window.DB.ref('app_settings').on('value',function(snap){
+    APP_SETTINGS=snap.exists()?snap.val():{};
+    applySettings();
+  });
+}
+
+function applySettings(){
+  // SOS button
+  var sosBtn=document.getElementById('sos-btn');
+  if(sosBtn)sosBtn.style.display=APP_SETTINGS.sos_button?'flex':'none';
+  // Kaspi QR
+  var kaspiBtn=document.getElementById('kaspi-btn');
+  if(kaspiBtn)kaspiBtn.style.display=APP_SETTINGS.kaspi_qr?'block':'none';
+  // Promo code
+  var promoBtn=document.getElementById('promo-btn');
+  if(promoBtn)promoBtn.style.display=APP_SETTINGS.promo_code?'block':'none';
+  // Privacy policy
+  if(APP_SETTINGS.privacy_policy&&!localStorage.getItem('aba_privacy_ok')){
+    showPrivacyModal();
+  }
+}
+
+function showPrivacyModal(){
+  var m=document.createElement('div');
+  m.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.9);display:flex;align-items:center;justify-content:center;z-index:500;padding:20px';
+  m.innerHTML='<div style="background:var(--dark2);border-radius:20px;padding:26px;width:100%;max-width:340px;text-align:center">'+
+    '<div style="font-size:32px;margin-bottom:12px">📜</div>'+
+    '<div style="font-size:17px;font-weight:800;margin-bottom:8px">Пайдаланушы келісімі</div>'+
+    '<div style="font-size:13px;color:var(--muted);margin-bottom:20px;line-height:1.6">'+
+      'ABA Group TAKSI GO қызметін пайдалану арқылы сіз біздің '+
+      '<span style="color:var(--gold)">Пайдалану шарттары</span> мен '+
+      '<span style="color:var(--gold)">Конфиденциалдылық саясатымызға</span> келісесіз.'+
+    '</div>'+
+    '<button onclick="acceptPrivacy(this)" style="width:100%;background:var(--gold);border:none;border-radius:10px;padding:14px;font-family:Manrope,sans-serif;font-weight:800;font-size:14px;color:var(--dark);cursor:pointer;margin-bottom:8px">✓ Келісемін</button>'+
+    '<button onclick="logout()" style="width:100%;background:none;border:1px solid var(--dark4);border-radius:10px;padding:12px;font-family:Manrope,sans-serif;font-weight:600;font-size:13px;color:var(--muted);cursor:pointer">Бас тарту</button>'+
+  '</div>';
+  document.body.appendChild(m);
+}
+
+function acceptPrivacy(btn){
+  localStorage.setItem('aba_privacy_ok','1');
+  btn.closest('div').parentNode.remove();
+}
 function openAdminChat(){
   if(!U)return;
   document.getElementById('admin-chat-modal').classList.add('open');

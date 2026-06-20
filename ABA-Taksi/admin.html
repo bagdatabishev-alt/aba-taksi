@@ -93,6 +93,16 @@
     .driver-stat-name{font-size:14px;font-weight:700}
     .driver-stat-sub{font-size:12px;color:var(--muted);margin-top:2px}
     .driver-stat-earn{font-size:16px;font-weight:800;color:var(--gold)}
+    .setting-item{background:var(--dark2);border-radius:var(--radius);border:1px solid var(--dark4);padding:16px;margin-bottom:10px;display:flex;align-items:center;gap:14px}
+    .setting-icon{font-size:26px;width:42px;text-align:center;flex-shrink:0}
+    .setting-info{flex:1}
+    .setting-name{font-size:14px;font-weight:700}
+    .setting-desc{font-size:12px;color:var(--muted);margin-top:3px;line-height:1.4}
+    .s-toggle{width:50px;height:26px;border-radius:13px;background:var(--dark4);position:relative;cursor:pointer;transition:background .3s;border:none;display:block}
+    .s-toggle.on{background:var(--success)}
+    .s-toggle-thumb{position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:white;transition:left .3s;pointer-events:none}
+    .s-toggle.on .s-toggle-thumb{left:27px}
+    .setting-group{font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:1px;margin:16px 0 8px;padding:0 2px}
     .archive-month{background:var(--dark2);border-radius:var(--radius);border:1px solid var(--dark4);margin-bottom:10px;padding:14px;cursor:pointer}
     .archive-month-title{font-size:15px;font-weight:700;display:flex;justify-content:space-between;align-items:center}
     .archive-month-sub{font-size:12px;color:var(--muted);margin-top:4px}
@@ -172,6 +182,7 @@
     <button class="tab" onclick="switchTab('orders')">📋 Тапсырыстар</button>
     <button class="tab" onclick="switchTab('archive')">📁 Архив</button>
     <button class="tab" onclick="switchTab('chat')">💬 Чат</button>
+    <button class="tab" onclick="switchTab('settings')">⚙️ Баптаулар</button>
   </div>
 
   <!-- STATISTICS -->
@@ -203,6 +214,15 @@
       <div style="font-size:13px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:1px">🏆 Жүргізушілер рейтингі</div>
     </div>
     <div class="driver-stats-list" id="driver-stats-list"></div>
+  </div>
+
+  <!-- SETTINGS -->
+  <div id="tab-settings" class="tab-content">
+    <div class="section">
+      <div style="font-size:14px;font-weight:800;margin-bottom:4px">⚙️ Жүйе баптаулары</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:20px">Функцияларды қосыңыз немесе өшіріңіз. Өзгерістер бірден барлық қолданушыларға қолданылады.</div>
+      <div id="settings-list"></div>
+    </div>
   </div>
 
   <!-- CITIES -->
@@ -655,11 +675,34 @@ function switchTab(name){
   if(name==='stats')renderStats();
   if(name==='chat')renderChatUsers();
   if(name==='cities')loadCities();
+  if(name==='settings')loadSettings();
 }
 
 function initAdmin(){
-  loadUsers();loadOrders();loadArchive();loadCities();
+  loadUsers();loadOrders();loadArchive();loadCities();loadSettings();
+  listenSOS();
   setTimeout(function(){renderStats()},1200);
+}
+
+function listenSOS(){
+  DB.ref('sos_alerts').orderByChild('time').limitToLast(10).on('value',function(snap){
+    if(!snap.exists())return;
+    var alerts=[];snap.forEach(function(c){alerts.unshift(c.val())});
+    var latest=alerts[0];
+    if(latest&&Date.now()-latest.time<30000){
+      // Show SOS alert banner
+      var existing=document.getElementById('sos-alert-banner');
+      if(!existing){
+        var banner=document.createElement('div');
+        banner.id='sos-alert-banner';
+        banner.style.cssText='position:fixed;top:0;left:0;right:0;background:var(--danger);color:white;padding:14px 20px;z-index:200;display:flex;align-items:center;gap:12px;font-weight:700;font-size:14px;animation:pulse 1s infinite';
+        banner.innerHTML='🆘 ШҰҒЫЛ! '+latest.userName+' ('+latest.phone+') SOS сигналын жіберді! <button onclick="this.parentNode.remove()" style="margin-left:auto;background:rgba(255,255,255,.2);border:none;border-radius:6px;padding:4px 10px;color:white;cursor:pointer;font-weight:700">✕</button>';
+        document.body.prepend(banner);
+        // Play alert sound
+        try{var ctx=new AudioContext();var osc=ctx.createOscillator();osc.connect(ctx.destination);osc.frequency.value=880;osc.start();setTimeout(function(){osc.stop()},500)}catch(e){}
+      }
+    }
+  });
 }
 
 // ── STATISTICS ──
@@ -827,6 +870,71 @@ function renderCitiesAdmin(){
 function toggleCity(cityKey,isActive){
   if(isActive){DB.ref('active_cities/'+cityKey).remove();toast('🚫 '+ALL_CITIES[cityKey].name+' өшірілді')}
   else{DB.ref('active_cities/'+cityKey).set(true);toast('✅ '+ALL_CITIES[cityKey].name+' қосылды')}
+}
+
+// ── SETTINGS ──
+var SETTINGS_CONFIG=[
+  {group:'🛡️ Қауіпсіздік'},
+  {key:'sos_button',icon:'🆘',name:'SOS батырмасы',desc:'Жолаушы қауіп сезгенде 112 қоңырау шалады және админге хабар жіберіледі'},
+  {key:'share_trip',icon:'📍',name:'Сапарды бөлісу',desc:'Жолаушы маршрутты туысқандарына жібере алады'},
+  {group:'💰 Қаржы'},
+  {key:'commission',icon:'💰',name:'Комиссия жүйесі (10%)',desc:'Әр тапсырыстан ABA Group үлесі автоматты есептеледі'},
+  {key:'kaspi_qr',icon:'💳',name:'Kaspi QR төлем',desc:'Жолаушы Kaspi арқылы онлайн төлей алады'},
+  {key:'receipt',icon:'🧾',name:'Чек жіберу',desc:'Сапар аяқталғанда жолаушыға чек жіберіледі'},
+  {group:'🎯 Маркетинг'},
+  {key:'promo_code',icon:'⭐',name:'Промокод жүйесі',desc:'Жаңа жолаушыларға жеңілдік промокодтары'},
+  {key:'referral',icon:'👥',name:'Реферал жүйесі',desc:'Достарды шақырса бонус алады'},
+  {group:'📋 Заңдық'},
+  {key:'privacy_policy',icon:'📜',name:'Privacy Policy',desc:'Кіргенде пайдаланушы келісімін растауы керек'},
+  {key:'driver_verify',icon:'🪪',name:'Жүргізуші верификациясы',desc:'Куәлік пен техпаспорт тексеруден өту міндетті'},
+  {group:'🔔 Хабарландыру'},
+  {key:'push_notify',icon:'🔔',name:'Push хабарландыру',desc:'Жаңа тапсырыс келгенде дыбыс және дірілдеу'},
+  {key:'sms_verify',icon:'📱',name:'SMS верификация',desc:'Телефон нөмірін SMS арқылы растау'},
+];
+
+var appSettings={};
+
+function loadSettings(){
+  DB.ref('app_settings').on('value',function(snap){
+    appSettings=snap.exists()?snap.val():{};
+    renderSettings();
+  });
+}
+
+function renderSettings(){
+  var el=document.getElementById('settings-list');if(!el)return;
+  var html='';
+  SETTINGS_CONFIG.forEach(function(item){
+    if(item.group){
+      html+='<div class="setting-group">'+item.group+'</div>';
+      return;
+    }
+    var isOn=!!appSettings[item.key];
+    html+='<div class="setting-item" style="border-color:'+(isOn?'var(--success)':'var(--dark4)')+'">'+
+      '<div class="setting-icon">'+item.icon+'</div>'+
+      '<div class="setting-info">'+
+        '<div class="setting-name">'+item.name+'</div>'+
+        '<div class="setting-desc">'+item.desc+'</div>'+
+      '</div>'+
+      '<div>'+
+        '<div style="font-size:10px;font-weight:700;color:'+(isOn?'var(--success)':'var(--muted)')+';text-align:center;margin-bottom:4px">'+(isOn?'ҚОСУЛЫ':'ӨШІРУЛІ')+'</div>'+
+        '<button class="s-toggle'+(isOn?' on':'')+'" onclick="toggleSetting(\''+item.key+'\','+isOn+')">'+
+          '<div class="s-toggle-thumb"></div>'+
+        '</button>'+
+      '</div>'+
+    '</div>';
+  });
+  el.innerHTML=html;
+}
+
+function toggleSetting(key,isOn){
+  if(isOn){
+    DB.ref('app_settings/'+key).remove();
+    toast('❌ Өшірілді');
+  } else {
+    DB.ref('app_settings/'+key).set(true);
+    toast('✅ Қосылды');
+  }
 }
 
 function toast(msg){var el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');setTimeout(function(){el.classList.remove('show')},3500)}
