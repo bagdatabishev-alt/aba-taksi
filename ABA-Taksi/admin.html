@@ -375,7 +375,7 @@ function renderDrivers(drivers){
       '<div class="card-details">'+
         '<div class="detail-row"><span class="detail-label">Телефон</span><span class="detail-val">'+u.phone+'</span></div>'+
         '<div class="detail-row"><span class="detail-label">Сапарлар (ай)</span><span class="detail-val">'+(u.trips||0)+'</span></div>'+
-        '<div class="detail-row"><span class="detail-label">Табыс (ай)</span><span class="detail-val" style="color:var(--gold)">'+(u.earn||0).toLocaleString()+' ₸</span></div>'+
+        '<div class="detail-row"><span class="detail-label">Табыс (ай)</span><span class="detail-val" style="color:var(--gold)">'+(u.earn||0).toLocaleString()+' '+(u.currency||'₸')+'</span></div>'+
         '<div class="detail-row"><span class="detail-label">Жалпы сапар</span><span class="detail-val">'+(u.totalTrips||u.trips||0)+'</span></div>'+
         '<div class="detail-row"><span class="detail-label">Рейтинг</span><span class="detail-val">⭐ '+(u.rating||5.0)+'</span></div>'+
         (u.carModel?'<div class="detail-row"><span class="detail-label">Машина</span><span class="detail-val">'+(u.carModel||'')+(u.carColor?', '+u.carColor:'')+'</span></div>':'')+
@@ -412,7 +412,7 @@ function loadOrders(){
     allOrders={};var total=0,rev=0;
     snap.forEach(function(c){allOrders[c.key]={key:c.key,...c.val()};total++;if(c.val().status==='completed')rev+=c.val().price||0});
     document.getElementById('stat-orders').textContent=total;
-    document.getElementById('stat-revenue').textContent=rev.toLocaleString()+' ₸';
+    document.getElementById('stat-revenue').textContent=rev.toLocaleString()+' ₸ (барлығы)';
     renderOrders(curFilter);
   });
 }
@@ -756,7 +756,7 @@ function renderDriverStats(){
   if(!drivers.length){el.innerHTML='<div class="empty">Жүргізушілер жоқ</div>';return}
   var medals=['🥇','🥈','🥉'];
   el.innerHTML=drivers.map(function(u,i){
-    return '<div class="driver-stat-item"><div class="driver-stat-rank">'+(medals[i]||'#'+(i+1))+'</div>'+(u.photo?'<img src="'+u.photo+'" style="width:40px;height:40px;object-fit:cover;border-radius:50%">':'<div style="width:40px;height:40px;background:var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--dark);font-weight:800;font-size:14px">'+u.name.slice(0,2).toUpperCase()+'</div>')+'<div class="driver-stat-info"><div class="driver-stat-name">'+u.name+'</div><div class="driver-stat-sub">'+(u.trips||0)+' сапар • ⭐'+(u.rating||5.0)+(u.carModel?' • '+u.carModel:'')+'</div></div><div class="driver-stat-earn">'+(u.earn||0).toLocaleString()+' ₸</div></div>';
+    return '<div class="driver-stat-item"><div class="driver-stat-rank">'+(medals[i]||'#'+(i+1))+'</div>'+(u.photo?'<img src="'+u.photo+'" style="width:40px;height:40px;object-fit:cover;border-radius:50%">':'<div style="width:40px;height:40px;background:var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--dark);font-weight:800;font-size:14px">'+u.name.slice(0,2).toUpperCase()+'</div>')+'<div class="driver-stat-info"><div class="driver-stat-name">'+u.name+'</div><div class="driver-stat-sub">'+(u.trips||0)+' сапар • ⭐'+(u.rating||5.0)+(u.carModel?' • '+u.carModel:'')+'</div></div><div class="driver-stat-earn">'+(u.earn||0).toLocaleString()+' '+(u.currency||'₸')+'</div></div>';
   }).join('');
 }
 // ── CITIES ──
