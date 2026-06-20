@@ -425,7 +425,7 @@ function renderOrders(filter){
   orders.sort(function(a,b){return(b.createdAt||0)-(a.createdAt||0)});
   if(!orders.length){el.innerHTML='<div class="empty">Тапсырыстар жоқ</div>';return}
   el.innerHTML=orders.map(function(o){
-    return '<div class="order-card"><div style="display:flex;justify-content:space-between;align-items:flex-start"><div><div class="order-route">📍 '+(o.from||'—')+' → 🏁 '+(o.to||'—')+'</div><div class="order-meta"><span class="badge badge-'+(o.status||'')+'">'+statusLabel(o.status)+'</span><span class="order-meta-item">👤 '+(o.passengerName||'—')+'</span>'+(o.driverName?'<span class="order-meta-item">🚗 '+o.driverName+'</span>':'')+'</div></div><div class="order-price">'+(o.price||0)+' ₸</div></div><div style="font-size:11px;color:var(--muted);margin-top:6px">'+(o.createdAt?new Date(o.createdAt).toLocaleString('ru-RU'):'')+'</div></div>';
+    return '<div class="order-card"><div style="display:flex;justify-content:space-between;align-items:flex-start"><div><div class="order-route">📍 '+(o.from||'—')+' → 🏁 '+(o.to||'—')+'</div><div class="order-meta"><span class="badge badge-'+(o.status||'')+'">'+statusLabel(o.status)+'</span><span class="order-meta-item">👤 '+(o.passengerName||'—')+'</span>'+(o.driverName?'<span class="order-meta-item">🚗 '+o.driverName+'</span>':'')+'</div></div><div class="order-price">'+(o.price||0)+' '+(o.currency||'₸')+'</div></div><div style="font-size:11px;color:var(--muted);margin-top:6px">'+(o.createdAt?new Date(o.createdAt).toLocaleString('ru-RU'):'')+'</div></div>';
   }).join('');
 }
 
