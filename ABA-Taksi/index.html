@@ -1170,7 +1170,7 @@ function acceptOrder(orderKey,price,fromEnc,toEnc){
   var mu='https://www.google.com/maps/dir/?api=1&origin='+encodeURIComponent(fF)+'&destination='+encodeURIComponent(tF)+'&travelmode=driving';
   DB.ref('orders/'+orderKey).update({status:'accepted',driverId:U.id,driverName:U.name,driverPhone:U.phone,driverCar:(U.carModel||'Автомобиль')+(U.carColor?', '+U.carColor:''),driverPlate:U.plate||'—',driverRating:U.rating||5.0,driverPhoto:U.photo||null,eta:eta,currency:getCurrencySymbol(),city:CUR_CITY});
   var nt=(U.trips||0)+1;var ne=(U.earn||0)+price;
-  DB.ref('users/'+U.id).update({trips:nt,earn:ne});
+  DB.ref('users/'+U.id).update({trips:nt,earn:ne,earnCurrency:getCurrencySymbol()});
   U.trips=nt;U.earn=ne;saveSess(U);
   document.getElementById('d-trips').textContent=nt;
   document.getElementById('d-earn').textContent=ne+' '+(getCurrencySymbol()||'₸');
