@@ -331,7 +331,10 @@
   </div>
   <div class="profile-list">
     <div class="profile-item" onclick="openAdminChat()"><span class="profile-item-icon">💬</span><span class="profile-item-text">Админмен чат <span id="admin-chat-badge" style="background:var(--danger);color:white;border-radius:10px;padding:2px 7px;font-size:11px;font-weight:700;display:none">жаңа</span></span><span>›</span></div>
-    <div class="profile-item" onclick="toast('Kaspi QR жақын арада')"><span class="profile-item-icon">💳</span><span class="profile-item-text">Төлем әдістері</span><span>›</span></div>
+    <!-- Settings controlled buttons -->
+    <div class="profile-item" id="kaspi-btn" style="display:none" onclick="toast('Kaspi QR жақын арада')"><span class="profile-item-icon">💳</span><span class="profile-item-text">Kaspi QR төлем</span><span>›</span></div>
+    <div class="profile-item" id="promo-btn" style="display:none" onclick="toast('Промокод жақын арада')"><span class="profile-item-icon">⭐</span><span class="profile-item-text">Промокод енгізу</span><span>›</span></div>
+    <div class="profile-item" id="referral-btn" style="display:none" onclick="shareReferral()"><span class="profile-item-icon">👥</span><span class="profile-item-text">Достарды шақыру</span><span>›</span></div>
     <div class="profile-item" onclick="toast('support@abagroup.kz')"><span class="profile-item-icon">❓</span><span class="profile-item-text">Қолдау қызметі</span><span>›</span></div>
   </div>
   <div class="bottom-nav">
@@ -732,13 +735,25 @@ function applySettings(){
   if(sosBtn)sosBtn.style.display=APP_SETTINGS.sos_button?'flex':'none';
   // Kaspi QR
   var kaspiBtn=document.getElementById('kaspi-btn');
-  if(kaspiBtn)kaspiBtn.style.display=APP_SETTINGS.kaspi_qr?'block':'none';
+  if(kaspiBtn)kaspiBtn.style.display=APP_SETTINGS.kaspi_qr?'flex':'none';
   // Promo code
   var promoBtn=document.getElementById('promo-btn');
-  if(promoBtn)promoBtn.style.display=APP_SETTINGS.promo_code?'block':'none';
+  if(promoBtn)promoBtn.style.display=APP_SETTINGS.promo_code?'flex':'none';
+  // Referral
+  var referralBtn=document.getElementById('referral-btn');
+  if(referralBtn)referralBtn.style.display=APP_SETTINGS.referral?'flex':'none';
   // Privacy policy
   if(APP_SETTINGS.privacy_policy&&!localStorage.getItem('aba_privacy_ok')){
     showPrivacyModal();
+  }
+}
+
+function shareReferral(){
+  var code='ABA'+( U?U.id.slice(-4).toUpperCase():'0000');
+  if(navigator.share){
+    navigator.share({title:'ABA TAKSI GO',text:'ABA TAKSI GO қосымшасын қолданыңыз! Промокод: '+code,url:'https://aba-taksi.vercel.app'});
+  } else {
+    toast('Промокодыңыз: '+code);
   }
 }
 
@@ -907,7 +922,7 @@ function loadOnlineCount(){
 function showTab(tab){
   if(tab==='home'){setupHome();show('home')}
   else if(tab==='history'){loadHistory();show('history')}
-  else if(tab==='profile'){setupHome();show('profile')}
+  else if(tab==='profile'){setupHome();applySettings();show('profile')}
 }
 
 // ── TARIFF ──
