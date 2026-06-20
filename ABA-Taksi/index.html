@@ -1085,7 +1085,7 @@ function loadHistory(){
   DB.ref('orders').orderByChild(field).equalTo(U.id).once('value',function(snap){
     var items=[];snap.forEach(function(c){var v=c.val();if(v.status==='completed')items.unshift(v)});
     if(!items.length){el.innerHTML='<div style="text-align:center;color:var(--muted);padding:60px 20px;font-size:14px">Сапар тарихы жоқ</div>';return}
-    el.innerHTML=items.map(function(item){return '<div class="history-item"><div class="history-row"><div class="history-route">'+(item.from||'—')+' → '+(item.to||'—')+'</div><div class="history-price">'+(item.price||0)+' ₸</div></div><div class="history-meta"><span class="history-tag">'+(ROLE==='driver'?'🙋 '+(item.passengerName||'—'):'🚗 '+(item.driverName||'—'))+'</span><span class="history-tag">•</span><span class="history-tag">'+(item.tariff||'—')+'</span><span class="history-tag">•</span><span class="history-tag">'+(item.createdAt?new Date(item.createdAt).toLocaleDateString('ru-RU'):'—')+'</span></div></div>'}).join('');
+    el.innerHTML=items.map(function(item){return '<div class="history-item"><div class="history-row"><div class="history-route">'+(item.from||'—')+' → '+(item.to||'—')+'</div><div class="history-price">'+(item.price||0)+' '+(item.currency||'₸')+'</div></div><div class="history-meta"><span class="history-tag">'+(ROLE==='driver'?'🙋 '+(item.passengerName||'—'):'🚗 '+(item.driverName||'—'))+'</span><span class="history-tag">•</span><span class="history-tag">'+(item.tariff||'—')+'</span><span class="history-tag">•</span><span class="history-tag">'+(item.createdAt?new Date(item.createdAt).toLocaleDateString('ru-RU'):'—')+'</span></div></div>'}).join('');
   });
 }
 
@@ -1118,7 +1118,7 @@ function uploadPhoto(input,who){
 function setupDriver(){
   if(!U)return;
   document.getElementById('d-trips').textContent=U.trips||0;
-  document.getElementById('d-earn').textContent=(U.earn||0)+' ₸';
+  document.getElementById('d-earn').textContent=(U.earn||0)+' '+(getCurrencySymbol()||'₸');
   document.getElementById('d-rating').textContent=U.rating?Number(U.rating).toFixed(1):'5.0';
   document.getElementById('drv-name').textContent=U.name;
   var av=document.getElementById('drv-avatar');
@@ -1173,7 +1173,7 @@ function acceptOrder(orderKey,price,fromEnc,toEnc){
   DB.ref('users/'+U.id).update({trips:nt,earn:ne});
   U.trips=nt;U.earn=ne;saveSess(U);
   document.getElementById('d-trips').textContent=nt;
-  document.getElementById('d-earn').textContent=ne+' ₸';
+  document.getElementById('d-earn').textContent=ne+' '+(getCurrencySymbol()||'₸');
   CHAT_KEY=orderKey;
   toast('✅ Қабылданды!');
   setTimeout(function(){window.open(mu,'_blank')},800);
