@@ -852,11 +852,31 @@ function showTab(tab){
 // ── TARIFF ──
 function setTariff(el,price,name){
   document.querySelectorAll('.tariff-card').forEach(function(c){c.classList.remove('active')});
-  el.classList.add('active');TARIFF={name:name,price:price};updatePrice();
+  el.classList.add('active');
+  TARIFF={name:name,price:price};
+  updatePrice();
 }
-function setTariff(el,price,name){
-  document.querySelectorAll('.tariff-card').forEach(function(c){c.classList.remove('active')});
-  el.classList.add('active');TARIFF={name:name,price:price};updatePrice();
+
+function renderTariffs(){
+  var tariffs=getTariffs();
+  var sym=getCurrencySymbol();
+  var isDistCity=DISTANCE_CITIES.indexOf(CUR_CITY)>=0;
+  var el=document.querySelector('.tariff-cards');
+  if(!el)return;
+  el.innerHTML=tariffs.map(function(t,i){
+    // Қашықтық қалаларда баға жасырын — маршрут таңдалғанда ғана шығады
+    var priceHtml=isDistCity
+      ?'<div class="tariff-price" id="tariff-price-'+i+'" style="color:var(--muted);font-size:11px">Маршрут таңдаңыз</div>'
+      :'<div class="tariff-price">'+t.price+' '+sym+'</div>';
+    return '<div class="tariff-card'+(i===0?' active':'')+'" onclick="setTariff(this,'+t.price+',\''+t.name+'\')">'
+      +'<div class="tariff-icon">'+t.icon+'</div>'
+      +'<div class="tariff-name">'+t.name+'</div>'
+      +priceHtml
+      +'<div class="tariff-time">'+t.time+'</div>'
+      +'</div>';
+  }).join('');
+  TARIFF={name:tariffs[0].name,price:tariffs[0].price};
+  updatePrice();
 }
 
 // Қашықтық бойынша баға — тек үлкен қалалар
@@ -902,27 +922,60 @@ function calcDistancePrice(from,to){
 
 function updatePrice(){
   var sym=getCurrencySymbol();
+  var isDistCity=DISTANCE_CITIES.indexOf(CUR_CITY)>=0;
+
   if(!FROM||!TO){
     document.getElementById('total-price').textContent='— '+sym;
-    document.getElementById('price-note').textContent='Маршрут таңдалмаған';
+    document.getElementById('price-note').textContent='Маршрут таңдаңыз';
+    if(isDistCity){
+      document.querySelectorAll('.tariff-price').forEach(function(el){
+        el.textContent='Маршрут таңдаңыз';
+        el.style.color='var(--muted)';
+        el.style.fontSize='11px';
+      });
+    }
     return;
   }
+
   // Үлкен қалалар — қашықтық бойынша
-  if(DISTANCE_CITIES.indexOf(CUR_CITY)>=0&&FROM_GEO&&TO_GEO){
-    var result=calcDistancePrice(FROM_GEO,TO_GEO);
-    if(result){
-      TARIFF.price=result.price;
-      document.getElementById('total-price').textContent=result.price+(sym==='$'?'':' ')+sym;
-      document.getElementById('price-note').textContent=TARIFF.name+' • '+result.distKm+' км • ~'+result.timeMin+' мин';
-      return;
+  if(isDistCity&&FROM_GEO&&TO_GEO){
+    var tariffs=getTariffs();
+    var savedTariff=TARIFF;
+    // Show price on each tariff card
+    tariffs.forEach(function(t,i){
+      TARIFF={name:t.name,price:t.price};
+      var result=calcDistancePrice(FROM_GEO,TO_GEO);
+      if(result){
+        var cards=document.querySelectorAll('.tariff-card');
+        if(cards[i]){
+          var priceEl=cards[i].querySelector('.tariff-price');
+          if(priceEl){
+            priceEl.textContent=result.price+' '+sym;
+            priceEl.style.color='var(--gold)';
+            priceEl.style.fontSize='14px';
+            priceEl.style.fontWeight='800';
+          }
+          cards[i].setAttribute('onclick','setTariff(this,'+result.price+',\''+t.name+'\')');
+        }
+      }
+    });
+    // Restore and calculate for selected tariff
+    TARIFF=savedTariff;
+    var finalResult=calcDistancePrice(FROM_GEO,TO_GEO);
+    if(finalResult){
+      TARIFF.price=finalResult.price;
+      document.getElementById('total-price').textContent=finalResult.price+' '+sym;
+      document.getElementById('price-note').textContent=TARIFF.name+' • '+finalResult.distKm+' км • ~'+finalResult.timeMin+' мин';
     }
+    return;
   }
+
   // Қабанбай, Жарбулақ — стандарт баға
   document.getElementById('total-price').textContent=TARIFF.price+' '+sym;
   document.getElementById('price-note').textContent=TARIFF.name+' тарифі';
 }
 
-function calcPittsburghPrice(from,to){} // Deprecated — calcDistancePrice пайдаланылады
+function calcPittsburghPrice(){}
 
 // ── LOCATION ──
 var locTimer=null;
