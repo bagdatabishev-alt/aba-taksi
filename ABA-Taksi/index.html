@@ -284,6 +284,7 @@
       <div class="action-row">
         <button class="btn-icon" onclick="callDriver()">📞<span>Қоңырау</span></button>
         <button class="btn-icon" onclick="toggleChat()">💬<span>Чат</span></button>
+        <button class="btn-icon" id="share-ride-btn" style="display:none" onclick="shareRideNow()">📍<span>Бөлісу</span></button>
         <button class="btn-icon" id="sos-btn" style="display:none;background:rgba(255,77,109,.2)" onclick="activateSOS()">🆘<span>SOS</span></button>
         <button class="btn-icon btn-danger" onclick="cancelOrder()">✕<span>Бас тарту</span></button>
       </div>
@@ -421,6 +422,39 @@
     <div style="display:flex;gap:8px">
       <input id="admin-chat-inp" style="flex:1;background:var(--dark3);border:1px solid var(--dark4);border-radius:8px;padding:10px 12px;color:var(--text);font-family:Manrope,sans-serif;font-size:13px;outline:none" placeholder="Хабар жазыңыз..." onkeydown="if(event.key==='Enter')sendToAdmin()"/>
       <button onclick="sendToAdmin()" style="background:var(--gold);border:none;border-radius:8px;padding:10px 14px;font-weight:800;cursor:pointer;font-size:14px">➤</button>
+    </div>
+  </div>
+</div>
+
+<!-- RECEIPT MODAL -->
+<div class="modal-overlay" id="receipt-modal" onclick="if(event.target.id==='receipt-modal')document.getElementById('receipt-modal').classList.remove('open')">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div id="receipt-content" style="background:white;border-radius:16px;padding:24px;color:#111;font-family:Manrope,sans-serif">
+      <div style="text-align:center;margin-bottom:16px">
+        <div style="font-size:32px">🚕</div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:24px;color:#f5c518;letter-spacing:2px">ABA GROUP TAKSI GO</div>
+        <div style="font-size:11px;color:#888;margin-top:2px">Ресми чек / Official Receipt</div>
+      </div>
+      <div style="border-top:2px dashed #eee;border-bottom:2px dashed #eee;padding:14px 0;margin-bottom:14px">
+        <div id="receipt-from" style="display:flex;justify-content:space-between;padding:5px 0;font-size:13px"><span style="color:#888">📍 Қайдан</span><span id="r-from" style="font-weight:700;text-align:right;max-width:60%"></span></div>
+        <div style="display:flex;justify-content:space-between;padding:5px 0;font-size:13px"><span style="color:#888">🏁 Қайда</span><span id="r-to" style="font-weight:700;text-align:right;max-width:60%"></span></div>
+        <div style="display:flex;justify-content:space-between;padding:5px 0;font-size:13px"><span style="color:#888">🚗 Жүргізуші</span><span id="r-driver" style="font-weight:700"></span></div>
+        <div style="display:flex;justify-content:space-between;padding:5px 0;font-size:13px"><span style="color:#888">🏷️ Тариф</span><span id="r-tariff" style="font-weight:700"></span></div>
+        <div style="display:flex;justify-content:space-between;padding:5px 0;font-size:13px"><span style="color:#888">📅 Күні</span><span id="r-date" style="font-weight:700"></span></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+        <div style="font-size:15px;font-weight:700;color:#111">Жалпы сомасы</div>
+        <div id="r-price" style="font-size:26px;font-weight:800;color:#f5c518"></div>
+      </div>
+      <div style="text-align:center;font-size:11px;color:#aaa;border-top:1px solid #eee;padding-top:12px">
+        ABA Group • aba-taksi.vercel.app<br/>
+        <span id="r-id" style="font-size:10px"></span>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:12px">
+      <button onclick="shareReceipt()" style="flex:1;background:var(--gold);border:none;border-radius:10px;padding:13px;font-family:Manrope,sans-serif;font-weight:800;font-size:14px;color:var(--dark);cursor:pointer">📤 Бөлісу</button>
+      <button onclick="document.getElementById('receipt-modal').classList.remove('open')" style="flex:1;background:var(--dark3);border:none;border-radius:10px;padding:13px;font-family:Manrope,sans-serif;font-weight:700;font-size:14px;color:var(--text);cursor:pointer">✕ Жабу</button>
     </div>
   </div>
 </div>
@@ -745,7 +779,9 @@ function applySettings(){
   // Kaspi QR
   APP_SETTINGS.kaspi_qr?show('kaspi-btn'):hide('kaspi-btn');
 
-  // Сапарды бөлісу
+  // Сапарды бөлісу — riding экранында + профильде
+  var shareRideBtn=document.getElementById('share-ride-btn');
+  if(shareRideBtn)shareRideBtn.style.display=APP_SETTINGS.share_trip?'flex':'none';
   APP_SETTINGS.share_trip?show('share-trip-btn'):hide('share-trip-btn');
 
   // Комиссия
@@ -766,7 +802,35 @@ function applySettings(){
   }
 }
 
-function shareTrip(){
+// ── RECEIPT ──
+function showReceipt(orderData){
+  if(!APP_SETTINGS.receipt)return;
+  document.getElementById('r-from').textContent=orderData.from||'—';
+  document.getElementById('r-to').textContent=orderData.to||'—';
+  document.getElementById('r-driver').textContent=orderData.driverName||'—';
+  document.getElementById('r-tariff').textContent=orderData.tariff||'—';
+  document.getElementById('r-date').textContent=new Date(orderData.createdAt||Date.now()).toLocaleString('ru-RU');
+  document.getElementById('r-price').textContent=(orderData.price||0)+' '+(orderData.currency||'₸');
+  document.getElementById('r-id').textContent='Тапсырыс №: '+(orderData.key||'—').slice(-8).toUpperCase();
+  document.getElementById('receipt-modal').classList.add('open');
+}
+
+function shareReceipt(){
+  var content=document.getElementById('receipt-content');
+  // Share as text
+  var text='🚕 ABA GROUP TAKSI GO — Чек\n\n'+
+    '📍 '+document.getElementById('r-from').textContent+'\n'+
+    '🏁 '+document.getElementById('r-to').textContent+'\n'+
+    '🚗 '+document.getElementById('r-driver').textContent+'\n'+
+    '💰 '+document.getElementById('r-price').textContent+'\n'+
+    '📅 '+document.getElementById('r-date').textContent+'\n\n'+
+    'aba-taksi.vercel.app';
+  if(navigator.share){
+    navigator.share({title:'ABA TAKSI GO Чек',text:text});
+  } else {
+    navigator.clipboard.writeText(text).then(function(){toast('📋 Чек көшірілді!')});
+  }
+}
   if(!ORDER_ID){toast('Белсенді сапар жоқ');return}
   var text='Менің сапарымды қадағалаңыз!\nABA TAKSI GO: https://aba-taksi.vercel.app';
   if(navigator.share){navigator.share({title:'ABA TAKSI GO',text:text})}
@@ -774,12 +838,28 @@ function shareTrip(){
 }
 
 function shareReferral(){
-  var code='ABA'+( U?U.id.slice(-4).toUpperCase():'0000');
-  if(navigator.share){
-    navigator.share({title:'ABA TAKSI GO',text:'ABA TAKSI GO қосымшасын қолданыңыз! Промокод: '+code,url:'https://aba-taksi.vercel.app'});
-  } else {
-    toast('Промокодыңыз: '+code);
-  }
+  var code='ABA'+(U?U.id.slice(-4).toUpperCase():'0000');
+  if(navigator.share){navigator.share({title:'ABA TAKSI GO',text:'ABA TAKSI GO қосымшасын қолданыңыз! Промокод: '+code,url:'https://aba-taksi.vercel.app'})}
+  else{toast('Промокодыңыз: '+code)}
+}
+
+function shareTrip(){shareRideNow()}
+
+function shareRideNow(){
+  var driverName=document.getElementById('ride-name')?document.getElementById('ride-name').textContent:'—';
+  var driverCar=document.getElementById('ride-car')?document.getElementById('ride-car').textContent:'—';
+  var driverPlate=document.getElementById('ride-plate')?document.getElementById('ride-plate').textContent:'—';
+  var eta=document.getElementById('ride-eta')?document.getElementById('ride-eta').textContent:'—';
+  var text='🚕 Мен қазір такси ұстадым!\n\n'+
+    '📍 Қайдан: '+(FROM||'—')+'\n'+
+    '🏁 Қайда: '+(TO||'—')+'\n'+
+    '🚗 Жүргізуші: '+driverName+'\n'+
+    '🚙 Машина: '+driverCar+' ('+driverPlate+')\n'+
+    '⏱️ Келу уақыты: '+eta+'\n\n'+
+    '📱 ABA TAKSI GO — aba-taksi.vercel.app';
+  if(navigator.share){navigator.share({title:'Менің сапарым — ABA TAKSI GO',text:text})}
+  else if(navigator.clipboard){navigator.clipboard.writeText(text).then(function(){toast('📋 Ақпарат көшірілді!')})}
+  else{toast('Бөлісу мүмкін емес')}
 }
 
 function showPrivacyModal(){
@@ -1178,8 +1258,13 @@ function placeOrder(){
       show('riding');
     }
     if(d.status==='completed'){
-      var oid=ORDER_ID;resetHome();show('home');
-      setTimeout(function(){showRating(oid)},600);
+      var oid=ORDER_ID;
+      var orderData=Object.assign({},d,{key:oid});
+      resetHome();show('home');
+      setTimeout(function(){
+        showRating(oid);
+        if(APP_SETTINGS.receipt)setTimeout(function(){showReceipt(orderData)},3000);
+      },600);
       toast('Сапар аяқталды! Рахмет 🙏');
     }
     if(d.status==='cancelled'){toast('Тапсырыс бас тартылды');resetHome();show('home')}
