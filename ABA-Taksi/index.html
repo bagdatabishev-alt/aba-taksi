@@ -722,11 +722,14 @@ function show(id){document.querySelectorAll('.screen').forEach(function(s){s.cla
 var APP_SETTINGS={};
 
 function loadAppSettings(){
-  if(!window.DB)return;
-  window.DB.ref('app_settings').on('value',function(snap){
-    APP_SETTINGS=snap.exists()?snap.val():{};
-    applySettings();
-  });
+  var tryLoad=function(){
+    if(!window.DB){setTimeout(tryLoad,300);return}
+    window.DB.ref('app_settings').on('value',function(snap){
+      APP_SETTINGS=snap.exists()?snap.val():{};
+      applySettings();
+    });
+  };
+  tryLoad();
 }
 
 function applySettings(){
@@ -922,7 +925,17 @@ function loadOnlineCount(){
 function showTab(tab){
   if(tab==='home'){setupHome();show('home')}
   else if(tab==='history'){loadHistory();show('history')}
-  else if(tab==='profile'){setupHome();applySettings();show('profile')}
+  else if(tab==='profile'){
+    setupHome();
+    show('profile');
+    // Reload settings from Firebase each time
+    if(window.DB){
+      window.DB.ref('app_settings').once('value',function(snap){
+        APP_SETTINGS=snap.exists()?snap.val():{};
+        applySettings();
+      });
+    }
+  }
 }
 
 // ── TARIFF ──
