@@ -331,8 +331,10 @@
   </div>
   <div class="profile-list">
     <div class="profile-item" onclick="openAdminChat()"><span class="profile-item-icon">💬</span><span class="profile-item-text">Админмен чат <span id="admin-chat-badge" style="background:var(--danger);color:white;border-radius:10px;padding:2px 7px;font-size:11px;font-weight:700;display:none">жаңа</span></span><span>›</span></div>
-    <!-- Settings controlled buttons -->
     <div class="profile-item" id="kaspi-btn" style="display:none" onclick="toast('Kaspi QR жақын арада')"><span class="profile-item-icon">💳</span><span class="profile-item-text">Kaspi QR төлем</span><span>›</span></div>
+    <div class="profile-item" id="share-trip-btn" style="display:none" onclick="shareTrip()"><span class="profile-item-icon">📍</span><span class="profile-item-text">Сапарды бөлісу</span><span>›</span></div>
+    <div class="profile-item" id="commission-btn" style="display:none"><span class="profile-item-icon">💰</span><span class="profile-item-text">Комиссия: <span id="commission-info" style="color:var(--gold)">10%</span></span><span>›</span></div>
+    <div class="profile-item" id="receipt-btn" style="display:none" onclick="toast('Чек email-ге жіберіледі')"><span class="profile-item-icon">🧾</span><span class="profile-item-text">Чек алу</span><span>›</span></div>
     <div class="profile-item" id="promo-btn" style="display:none" onclick="toast('Промокод жақын арада')"><span class="profile-item-icon">⭐</span><span class="profile-item-text">Промокод енгізу</span><span>›</span></div>
     <div class="profile-item" id="referral-btn" style="display:none" onclick="shareReferral()"><span class="profile-item-icon">👥</span><span class="profile-item-text">Достарды шақыру</span><span>›</span></div>
     <div class="profile-item" onclick="toast('support@abagroup.kz')"><span class="profile-item-icon">❓</span><span class="profile-item-text">Қолдау қызметі</span><span>›</span></div>
@@ -733,22 +735,42 @@ function loadAppSettings(){
 }
 
 function applySettings(){
-  // SOS button
+  function show(id){var el=document.getElementById(id);if(el)el.style.display='flex'}
+  function hide(id){var el=document.getElementById(id);if(el)el.style.display='none'}
+
+  // SOS button — сапар кезінде
   var sosBtn=document.getElementById('sos-btn');
   if(sosBtn)sosBtn.style.display=APP_SETTINGS.sos_button?'flex':'none';
+
   // Kaspi QR
-  var kaspiBtn=document.getElementById('kaspi-btn');
-  if(kaspiBtn)kaspiBtn.style.display=APP_SETTINGS.kaspi_qr?'flex':'none';
-  // Promo code
-  var promoBtn=document.getElementById('promo-btn');
-  if(promoBtn)promoBtn.style.display=APP_SETTINGS.promo_code?'flex':'none';
-  // Referral
-  var referralBtn=document.getElementById('referral-btn');
-  if(referralBtn)referralBtn.style.display=APP_SETTINGS.referral?'flex':'none';
-  // Privacy policy
+  APP_SETTINGS.kaspi_qr?show('kaspi-btn'):hide('kaspi-btn');
+
+  // Сапарды бөлісу
+  APP_SETTINGS.share_trip?show('share-trip-btn'):hide('share-trip-btn');
+
+  // Комиссия
+  APP_SETTINGS.commission?show('commission-btn'):hide('commission-btn');
+
+  // Чек
+  APP_SETTINGS.receipt?show('receipt-btn'):hide('receipt-btn');
+
+  // Промокод
+  APP_SETTINGS.promo_code?show('promo-btn'):hide('promo-btn');
+
+  // Реферал
+  APP_SETTINGS.referral?show('referral-btn'):hide('referral-btn');
+
+  // Privacy Policy
   if(APP_SETTINGS.privacy_policy&&!localStorage.getItem('aba_privacy_ok')){
     showPrivacyModal();
   }
+}
+
+function shareTrip(){
+  if(!ORDER_ID){toast('Белсенді сапар жоқ');return}
+  var text='Менің сапарымды қадағалаңыз!\nABA TAKSI GO: https://aba-taksi.vercel.app';
+  if(navigator.share){navigator.share({title:'ABA TAKSI GO',text:text})}
+  else{toast('Сапар сілтемесі көшірілді!')}
 }
 
 function shareReferral(){
