@@ -693,7 +693,7 @@ function renderCityList(keys){
   Object.keys(groups).forEach(function(country){
     html+='<div style="font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;margin-top:16px">'+country+'</div>';
     groups[country].forEach(function(item){
-      html+='<div onclick="selectCity(\''+item.key+'\')" style="display:flex;align-items:center;gap:14px;padding:14px;background:var(--dark2);border-radius:12px;margin-bottom:8px;cursor:pointer;border:2px solid var(--dark4);transition:border-color .2s" onmouseover="this.style.borderColor=\'var(--gold)\'" onmouseout="this.style.borderColor=\'var(--dark4)\'">'
+      h+="<div class='citem' onclick='selCity(\""+item.k+"\")'>"; style="display:flex;align-items:center;gap:14px;padding:14px;background:var(--dark2);border-radius:12px;margin-bottom:8px;cursor:pointer;border:2px solid var(--dark4);transition:border-color .2s" onmouseover="this.style.borderColor=\'var(--gold)\'" onmouseout="this.style.borderColor=\'var(--dark4)\'">'
         +'<div style="font-size:28px">🏙️</div>'
         +'<div><div style="font-size:16px;font-weight:700">'+item.city.name+'</div>'
         +'<div style="font-size:12px;color:var(--muted);margin-top:2px">'+item.city.country+'</div></div>'
