@@ -599,16 +599,37 @@ function rstH(){
   updP();
 }
 function callD(){if(DP)window.location.href="tel:"+DP;else toast("Телефон жоқ")}
-function togCh(){var b=document.getElementById("rch");if(!b)return;b.style.display=b.style.display==="none"?"block":"none";if(b.style.display==="block"&&CK)loadCh("rcm",CK)}
+function togCh(){
+  var b=document.getElementById("rch");if(!b)return;
+  if(b.style.display==="none"){
+    b.style.display="block";
+    if(CK){
+      // Firebase тыңдауды қайта қосу
+      DB.ref("chats/"+CK).off();
+      loadCh("rcm",CK);
+    }
+  } else {
+    b.style.display="none";
+  }
+}
 function loadCh(eid,key){
   if(!key||!DB)return;
+  // Алдыңғы тыңдауды өшір
+  DB.ref("chats/"+key).off();
+  // Жаңа тыңдау қос
   DB.ref("chats/"+key).on("value",function(snap){
     var el=document.getElementById(eid);if(!el)return;
     var msgs=[];snap.forEach(function(c){msgs.push(c.val())});
-    if(!msgs.length){el.innerHTML="<div style='text-align:center;color:var(--m);font-size:12px;padding:18px'>Хабар жоқ</div>";return}
+    if(!msgs.length){
+      el.innerHTML="<div style='text-align:center;color:var(--m);font-size:12px;padding:18px'>Хабар жоқ</div>";
+      return;
+    }
     el.innerHTML=msgs.map(function(m){
       var me=m.from===U.id;
-      return "<div style='align-self:"+(me?"flex-end":"flex-start")+";max-width:80%'><div style='background:"+(me?"var(--g)":"var(--d3)")+";color:"+(me?"var(--d)":"var(--t)")+";padding:7px 10px;border-radius:10px;font-size:12px'>"+m.text+"</div><div style='font-size:9px;color:var(--m);margin-top:2px;text-align:"+(me?"right":"left")+"'>"+(m.senderName||"")+"</div></div>";
+      return "<div style='align-self:"+(me?"flex-end":"flex-start")+";max-width:82%'>"
+        +"<div style='background:"+(me?"var(--g)":"var(--d3)")+";color:"+(me?"var(--d)":"var(--t)")+";padding:7px 10px;border-radius:10px;font-size:12px'>"+m.text+"</div>"
+        +"<div style='font-size:9px;color:var(--m);margin-top:2px;text-align:"+(me?"right":"left")+"'>"+(me?"Сіз":(m.senderName||"—"))+"</div>"
+        +"</div>";
     }).join("");
     el.scrollTop=el.scrollHeight;
   });
