@@ -185,6 +185,44 @@ body{font-family:Manrope,sans-serif;background:var(--d);color:var(--t);min-heigh
 <div class="mo" id="lmo" onclick="if(event.target.id==='lmo')closeLo()"><div class="ms"><div class="mh"></div><div class="mt" id="lmt">Мекенжай</div><input class="li2" id="lin" placeholder="🔍 Іздеу немесе жазыңыз..." oninput="searchLo()"/><div id="lls"></div></div></div>
 <div class="mo" id="cmo" onclick="if(event.target.id==='cmo')document.getElementById('cmo').classList.remove('on')"><div class="ms"><div class="mh"></div><div class="mt">🚗 Машина деректері</div><div class="f"><label>Машина маркасы</label><input type="text" id="ecm" placeholder="Toyota Camry"/></div><div class="f"><label>Машина түсі</label><input type="text" id="ecc" placeholder="Ақ"/></div><div class="f"><label>Номер</label><input type="text" id="ecp" placeholder="A 777 BC"/></div><div class="f"><label>Куәлік №</label><input type="text" id="ecl" placeholder="12345678"/></div><button class="bp" onclick="saveCar()">💾 Сақтау</button></div></div>
 <div class="mo" id="acmo" onclick="if(event.target.id==='acmo')document.getElementById('acmo').classList.remove('on')"><div class="ms"><div class="mh"></div><div class="mt">💬 Қолдау қызметі</div><div class="cms" id="acm" style="height:230px;margin-bottom:9px"></div><div class="cir"><input class="cin" id="aci" placeholder="Хабар жазыңыз..." onkeydown="if(event.key==='Enter')sendAC()"/><button class="bsn" onclick="sendAC()">➤</button></div></div></div>
+
+<!-- RECEIPT MODAL -->
+<div class="mo" id="rcptmo" onclick="if(event.target.id==='rcptmo')document.getElementById('rcptmo').classList.remove('on')">
+  <div class="ms">
+    <div class="mh"></div>
+    <div id="rcpt-box" style="background:white;border-radius:13px;padding:20px;color:#111;font-family:Manrope,sans-serif;margin-bottom:11px">
+      <div style="text-align:center;margin-bottom:13px">
+        <div style="font-size:26px">🚕</div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:#f5c518;letter-spacing:2px">ABA GROUP TAKSI GO</div>
+        <div style="font-size:10px;color:#999">Ресми чек</div>
+      </div>
+      <div style="border-top:2px dashed #eee;border-bottom:2px dashed #eee;padding:11px 0;margin-bottom:11px">
+        <div style="display:flex;justify-content:space-between;padding:3px 0;font-size:12px"><span style="color:#888">📍 Қайдан</span><span id="r-from" style="font-weight:700;text-align:right;max-width:55%"></span></div>
+        <div style="display:flex;justify-content:space-between;padding:3px 0;font-size:12px"><span style="color:#888">🏁 Қайда</span><span id="r-to" style="font-weight:700;text-align:right;max-width:55%"></span></div>
+        <div style="display:flex;justify-content:space-between;padding:3px 0;font-size:12px"><span style="color:#888">🚗 Жүргізуші</span><span id="r-drv" style="font-weight:700"></span></div>
+        <div style="display:flex;justify-content:space-between;padding:3px 0;font-size:12px"><span style="color:#888">🏷️ Тариф</span><span id="r-tar" style="font-weight:700"></span></div>
+        <div style="display:flex;justify-content:space-between;padding:3px 0;font-size:12px"><span style="color:#888">📅 Күні</span><span id="r-date" style="font-weight:700"></span></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:11px">
+        <div style="font-size:13px;font-weight:700">Жалпы сомасы</div>
+        <div id="r-price" style="font-size:22px;font-weight:800;color:#f5c518"></div>
+      </div>
+      <div id="kaspi-section" style="display:none;background:#e8f5e9;border-radius:9px;padding:11px;margin-bottom:9px;text-align:center">
+        <div style="font-size:12px;font-weight:700;color:#2e7d32;margin-bottom:6px">💳 Kaspi QR арқылы төлеңіз</div>
+        <div style="background:white;border-radius:8px;padding:10px;display:inline-block;margin-bottom:6px">
+          <div style="font-size:10px;color:#666;margin-bottom:4px">QR код</div>
+          <div style="width:80px;height:80px;background:linear-gradient(45deg,#333 25%,transparent 25%,transparent 75%,#333 75%),linear-gradient(45deg,#333 25%,transparent 25%,transparent 75%,#333 75%);background-size:10px 10px;background-position:0 0,5px 5px;border-radius:4px;margin:0 auto"></div>
+        </div>
+        <div style="font-size:11px;color:#2e7d32">Kaspi.kz → QR → Сканерлеу</div>
+      </div>
+      <div style="text-align:center;font-size:10px;color:#bbb;border-top:1px solid #eee;padding-top:9px">ABA Group • aba-taksi.vercel.app</div>
+    </div>
+    <div style="display:flex;gap:7px">
+      <button onclick="shareReceipt()" style="flex:1;background:var(--g);border:none;border-radius:9px;padding:12px;font-family:Manrope,sans-serif;font-weight:800;font-size:13px;color:var(--d);cursor:pointer">📤 Бөлісу</button>
+      <button onclick="document.getElementById('rcptmo').classList.remove('on')" style="flex:1;background:var(--d3);border:none;border-radius:9px;padding:12px;font-family:Manrope,sans-serif;font-weight:700;font-size:13px;color:var(--t);cursor:pointer">✕ Жабу</button>
+    </div>
+  </div>
+</div>
 <div class="toast" id="tst"></div>
 <script>
 var FBCFG={apiKey:"AIzaSyC-1odJDeZBGSMClhe9sN7lJ-8wYZkyzVw",authDomain:"aba-group-taksi-go.firebaseapp.com",databaseURL:"https://aba-group-taksi-go-default-rtdb.firebaseio.com",projectId:"aba-group-taksi-go",storageBucket:"aba-group-taksi-go.firebasestorage.app",messagingSenderId:"734948093057",appId:"1:734948093057:web:866c74d8857a6938eb7180"};
@@ -527,11 +565,23 @@ function placeOrder(){
       document.getElementById("rrt").textContent=d.driverRating||"5.0";
       document.getElementById("ret").textContent=(d.eta||5)+" мин";
       document.getElementById("rpr").textContent=d.price+" "+(d.currency||gs());
-      CK=OID;show("ride-sc");
+      CK=OID;
+      // Автоматты чат жүктеу
+      loadCh("rcm",OID);
+      // Чат блогын автоматты ашу
+      var rch=document.getElementById("rch");
+      if(rch)rch.style.display="block";
+      show("ride-sc");
     }
     if(d.status==="completed"){
-      var oid=OID;rstH();show("home-sc");
-      setTimeout(function(){showRat(oid)},600);
+      var oid=OID;
+      var ordData=Object.assign({},d,{key:OID});
+      rstH();show("home-sc");
+      setTimeout(function(){
+        showRat(oid);
+        // Чек және Kaspi QR көрсету
+        setTimeout(function(){showReceipt(ordData)},3500);
+      },600);
       toast("Сапар аяқталды! Рахмет 🙏");
     }
     if(d.status==="cancelled"){toast("Тапсырыс бас тартылды");rstH();show("home-sc")}
@@ -754,6 +804,29 @@ function shareRef(){
   var code="ABA"+(U?U.id.slice(-4).toUpperCase():"0000");
   if(navigator.share)navigator.share({title:"ABA TAKSI GO",text:"ABA TAKSI GO — aba-taksi.vercel.app\nПромокод: "+code});
   else toast("Промокодыңыз: "+code);
+}
+function showReceipt(od){
+  document.getElementById("r-from").textContent=od.from||"—";
+  document.getElementById("r-to").textContent=od.to||"—";
+  document.getElementById("r-drv").textContent=od.driverName||"—";
+  document.getElementById("r-tar").textContent=od.tariff||"—";
+  document.getElementById("r-date").textContent=new Date(od.createdAt||Date.now()).toLocaleString("ru-RU");
+  document.getElementById("r-price").textContent=(od.price||0)+" "+(od.currency||gs());
+  // Kaspi QR секциясы — SET-те қосулы болса ғана
+  var ks=document.getElementById("kaspi-section");
+  if(ks)ks.style.display=SET.kaspi_qr?"block":"none";
+  document.getElementById("rcptmo").classList.add("on");
+}
+function shareReceipt(){
+  var text="🚕 ABA GROUP TAKSI GO — Чек\n\n"+
+    "📍 "+document.getElementById("r-from").textContent+"\n"+
+    "🏁 "+document.getElementById("r-to").textContent+"\n"+
+    "🚗 "+document.getElementById("r-drv").textContent+"\n"+
+    "💰 "+document.getElementById("r-price").textContent+"\n"+
+    "📅 "+document.getElementById("r-date").textContent+"\n\n"+
+    "aba-taksi.vercel.app";
+  if(navigator.share)navigator.share({title:"ABA TAKSI GO Чек",text:text});
+  else if(navigator.clipboard)navigator.clipboard.writeText(text).then(function(){toast("📋 Чек көшірілді!")});
 }
 function showPrv(){
   var m=document.createElement("div");
