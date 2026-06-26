@@ -756,17 +756,74 @@ function togOnline(){
   document.getElementById("dtg").classList.toggle("on",ONLINE);
   var b=document.getElementById("dsbg");b.textContent=ONLINE?"Онлайн":"Офлайн";b.classList.toggle("on",ONLINE);
   if(DB)DB.ref("users/"+U.id).update({online:ONLINE});
-  if(ONLINE){showWt();listenOrd()}
-  else document.getElementById("dar").innerHTML="<div class='no'><div style='font-size:46px'>🟡</div><div style='font-size:13px;line-height:1.6'>Желіге қосылыңыз<br/>тапсырыстарды қабылдау үшін</div></div>";
+  if(ONLINE){
+    // Хабарландыру рұқсатын сұра
+    if(window.Notification&&Notification.permission==="default"){
+      Notification.requestPermission();
+    }
+    showWt();listenOrd();
+  } else {
+    lastOrdKey=null;
+    document.getElementById("dar").innerHTML="<div class='no'><div style='font-size:46px'>🟡</div><div style='font-size:13px;line-height:1.6'>Желіге қосылыңыз<br/>тапсырыстарды қабылдау үшін</div></div>";
+  }
 }
-function showWt(){document.getElementById("dar").innerHTML="<div class='no'><div style='font-size:46px'>🚕</div><div style='font-size:13px;color:var(--t);line-height:1.6'>Тапсырыс күтілуде...<br/><span style='color:var(--m);font-size:11px'>Жолаушылар іздеуде</span></div></div>"}
+function playSound(){
+  try{
+    var ctx=new (window.AudioContext||window.webkitAudioContext)();
+    // Дыбыс 1
+    var o1=ctx.createOscillator();var g1=ctx.createGain();
+    o1.connect(g1);g1.connect(ctx.destination);
+    o1.frequency.value=880;g1.gain.setValueAtTime(0.3,ctx.currentTime);
+    g1.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.3);
+    o1.start(ctx.currentTime);o1.stop(ctx.currentTime+0.3);
+    // Дыбыс 2
+    var o2=ctx.createOscillator();var g2=ctx.createGain();
+    o2.connect(g2);g2.connect(ctx.destination);
+    o2.frequency.value=1100;g2.gain.setValueAtTime(0.3,ctx.currentTime+0.35);
+    g2.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.65);
+    o2.start(ctx.currentTime+0.35);o2.stop(ctx.currentTime+0.65);
+    // Дыбыс 3
+    var o3=ctx.createOscillator();var g3=ctx.createGain();
+    o3.connect(g3);g3.connect(ctx.destination);
+    o3.frequency.value=1320;g3.gain.setValueAtTime(0.4,ctx.currentTime+0.7);
+    g3.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+1.1);
+    o3.start(ctx.currentTime+0.7);o3.stop(ctx.currentTime+1.1);
+  }catch(e){console.log("Sound error:",e)}
+  // Дірілдеу
+  if(navigator.vibrate)navigator.vibrate([200,100,200,100,400]);
+}
+
+function showNotif(title,body){
+  // Браузер хабарландыруы
+  if(window.Notification){
+    if(Notification.permission==="granted"){
+      new Notification(title,{body:body,icon:"./icon-192.png"});
+    } else if(Notification.permission!=="denied"){
+      Notification.requestPermission().then(function(p){
+        if(p==="granted")new Notification(title,{body:body,icon:"./icon-192.png"});
+      });
+    }
+  }
+}
+var lastOrdKey=null;
 function listenOrd(){
   if(!DB)return;
   DB.ref("orders").orderByChild("status").equalTo("waiting").on("value",function(snap){
     if(!ONLINE)return;
     var found=null;
     snap.forEach(function(c){var v=c.val();if(!found&&v.city===CUR)found=Object.assign({key:c.key},v)});
-    if(found)showOrd(found);else showWt();
+    if(found){
+      if(found.key!==lastOrdKey){
+        lastOrdKey=found.key;
+        playSound();
+        showNotif("🚕 Жаңа тапсырыс!","📍 "+found.from+" → "+found.to+" | "+found.price+" "+(found.currency||"\u20B8"));
+        toast("🔔 Жаңа тапсырыс келді!");
+      }
+      showOrd(found);
+    } else {
+      lastOrdKey=null;
+      showWt();
+    }
   });
 }
 function showOrd(order){
