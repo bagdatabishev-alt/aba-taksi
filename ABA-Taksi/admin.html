@@ -612,28 +612,25 @@ function downloadArchive(key){
 
 // ── CHAT ──
 function renderChatUsers(){
-  var el=document.getElementById('chat-user-list');
-  // If allUsers is empty, load from DB directly
-  if(!Object.keys(allUsers).length){
-    if(!DB){el.innerHTML='<div class="empty">Firebase жүктелуде...</div>';return}
-    DB.ref('users').once('value',function(snap){
-      snap.forEach(function(c){allUsers[c.key]=c.val()});
-      renderChatUsers();
+  var el=document.getElementById('chat-user-list');if(!el)return;
+  DB.ref('users').once('value',function(snap){
+    var users=[];
+    snap.forEach(function(c){
+      var u=c.val();
+      if(u&&u.name)users.push(u);
     });
-    return;
-  }
-  var users=Object.values(allUsers);
-  if(!users.length){el.innerHTML='<div class="empty">Қолданушылар жоқ</div>';return}
-  el.innerHTML=users.map(function(u){
-    return '<div class="chat-user-item '+(curChatUser===u.id?'active':'')+'" onclick="openChat(\''+u.id+'\',\''+u.name.replace(/'/g,"\\'")+'\')">'+
-      (u.photo?'<img src="'+u.photo+'" style="width:38px;height:38px;object-fit:cover;border-radius:50%">':
-        '<div style="width:38px;height:38px;background:var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--dark);font-weight:800;font-size:13px">'+u.name.slice(0,2).toUpperCase()+'</div>')+
-      '<div>'+
-        '<div style="font-size:13px;font-weight:700">'+u.name+'</div>'+
-        '<div style="font-size:11px;color:var(--muted)">'+(u.role==='driver'?'🚗 Жүргізуші':'🙋 Жолаушы')+' • '+u.phone+'</div>'+
-      '</div>'+
-    '</div>';
-  }).join('');
+    if(!users.length){el.innerHTML='<div class="empty">Қолданушылар жоқ</div>';return}
+    el.innerHTML=users.map(function(u){
+      return '<div class="chat-user-item '+(curChatUser===u.id?'active':'')+'" onclick="openChat(\''+u.id+'\',\''+u.name.replace(/'/g,"\\'")+'\')">'+
+        (u.photo?'<img src="'+u.photo+'" style="width:38px;height:38px;object-fit:cover;border-radius:50%">':
+          '<div style="width:38px;height:38px;background:var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--dark);font-weight:800;font-size:13px">'+u.name.slice(0,2).toUpperCase()+'</div>')+
+        '<div>'+
+          '<div style="font-size:13px;font-weight:700">'+u.name+'</div>'+
+          '<div style="font-size:11px;color:var(--muted)">'+(u.role==='driver'?'🚗 Жүргізуші':'🙋 Жолаушы')+' • '+u.phone+'</div>'+
+        '</div>'+
+      '</div>';
+    }).join('');
+  });
 }
 
 function openChat(userId,userName){
@@ -641,14 +638,22 @@ function openChat(userId,userName){
   document.getElementById('chat-box-wrap').style.display='block';
   document.getElementById('chat-box-title').textContent='💬 '+userName;
   renderChatUsers();
-  // Use 'admin_chats/userId' path - separate from order chats
+  // Stop previous listener
+  DB.ref('admin_chats').off();
+  // Listen to this user's chat
   DB.ref('admin_chats/'+userId).on('value',function(snap){
-    var el=document.getElementById('chat-messages');
+    var el=document.getElementById('chat-messages');if(!el)return;
     var msgs=[];snap.forEach(function(c){msgs.push(c.val())});
-    if(!msgs.length){el.innerHTML='<div style="text-align:center;color:var(--muted);font-size:13px;padding:20px">Хабар жоқ</div>';return}
+    if(!msgs.length){
+      el.innerHTML='<div style="text-align:center;color:var(--muted);font-size:13px;padding:20px">Хабар жоқ</div>';
+      return;
+    }
     el.innerHTML=msgs.map(function(m){
       var isAdmin=m.from==='admin';
-      return '<div class="chat-msg '+(isAdmin?'admin':'user')+'">'+'<div class="chat-bubble">'+m.text+'</div>'+'<div class="chat-time">'+(isAdmin?'👑 Админ':'👤 '+m.senderName)+' • '+new Date(m.time).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})+'</div></div>';
+      return '<div class="chat-msg '+(isAdmin?'admin':'user')+'">'
+        +'<div class="chat-bubble">'+m.text+'</div>'
+        +'<div class="chat-time">'+(isAdmin?'👑 Админ':'👤 '+( m.senderName||'Қолданушы'))+' • '+new Date(m.time).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})+'</div>'
+        +'</div>';
     }).join('');
     el.scrollTop=el.scrollHeight;
   });
