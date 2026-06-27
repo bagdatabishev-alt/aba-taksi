@@ -157,7 +157,7 @@ body{font-family:Manrope,sans-serif;background:var(--d);color:var(--t);min-heigh
 <div id="tl"><div class="f"><label>Телефон</label><input type="tel" id="lp" placeholder="+7 777 123 45 67"/></div><div class="f"><label>Құпия сөз</label><input type="password" id="lw" placeholder="••••••"/></div><div class="em" id="le">Телефон немесе пароль қате</div><button class="bp" onclick="doLogin()">Кіру</button></div>
 <div id="tr" style="display:none"><div class="f"><label>Аты-жөні</label><input type="text" id="rn" placeholder="Айгерім Бекова"/></div><div class="f"><label>Телефон</label><input type="tel" id="rp" placeholder="+7 777 123 45 67"/></div><div class="f"><label>Құпия сөз</label><input type="password" id="rw" placeholder="Кемінде 6 символ"/></div><div class="em" id="re"></div>
 <div class="st" style="margin-bottom:7px">Рөл</div><div class="rs"><div class="rb on" id="rpa" onclick="selRole(0)"><span class="ri">🙋</span>Жолаушы</div><div class="rb" id="rda" onclick="selRole(1)"><span class="ri">🚗</span>Жүргізуші</div></div>
-<div id="crf" style="display:none"><div class="f"><label>Машина маркасы</label><input type="text" id="rcm" placeholder="Toyota Camry"/></div><div class="f"><label>Машина түсі</label><input type="text" id="rcc" placeholder="Ақ"/></div><div class="f"><label>Номер</label><input type="text" id="rcp" placeholder="A 777 BC"/></div><div class="f"><label>Куәлік №</label><input type="text" id="rcl" placeholder="12345678"/></div></div>
+<div id="crf" style="display:none"><div class="f"><label>Машина маркасы</label><input type="text" id="reg-cm" placeholder="Toyota Camry"/></div><div class="f"><label>Машина түсі</label><input type="text" id="reg-cc" placeholder="Ақ"/></div><div class="f"><label>Номер</label><input type="text" id="reg-cp" placeholder="A 777 BC"/></div><div class="f"><label>Куәлік №</label><input type="text" id="reg-cl" placeholder="12345678"/></div></div>
 <button class="bp" onclick="doReg()">Тіркелу</button></div></div>
 <div id="home-sc" class="sc"><div class="tb"><div><div class="tl">🚕 ABA TAKSI GO</div><div id="cbd" style="font-size:10px;color:var(--m)"></div></div><div style="display:flex;align-items:center;gap:7px"><span id="hun" style="font-size:12px;font-weight:600"></span><div class="av" id="hav">?</div></div></div>
 <div class="ma"><div class="mg"></div><div class="mc">🚕</div><div class="ml" id="onl">🔄 Жүктелуде...</div></div>
@@ -395,10 +395,10 @@ function doReg(){
   if(!name||!phone||pass.length<6){err.style.display="block";err.textContent="Барлық өрістерді толтырыңыз";return}
   err.style.display="none";
   var key=phone.replace(/\D/g,"");
-  var cm=SROLE==="driver"?document.getElementById("rcm").value.trim():"";
-  var cc=SROLE==="driver"?document.getElementById("rcc").value.trim():"";
-  var cp=SROLE==="driver"?document.getElementById("rcp").value.trim():"";
-  var cl=SROLE==="driver"?document.getElementById("rcl").value.trim():"";
+  var cm=SROLE==="driver"?document.getElementById("reg-cm").value.trim():"";
+  var cc=SROLE==="driver"?document.getElementById("reg-cc").value.trim():"";
+  var cp=SROLE==="driver"?document.getElementById("reg-cp").value.trim():"";
+  var cl=SROLE==="driver"?document.getElementById("reg-cl").value.trim():"";
   DB.ref("users/"+key).get().then(function(snap){
     if(snap.exists()){
       var ex=snap.val();
