@@ -351,7 +351,8 @@ function loadUsers(){
     allUsers={};var drv=0,pass=0;
     snap.forEach(function(c){
       var u=c.val();
-      // Normalize role - user might have switched roles
+      if(!u||!u.name)return;
+      if(!u.id)u.id=c.key;
       allUsers[c.key]=u;
       if(u.role==='driver')drv++;
       else pass++;
@@ -362,6 +363,9 @@ function loadUsers(){
     renderPassengers(Object.values(allUsers).filter(function(u){return u.role!=='driver'}));
     renderChatUsers();
     renderStats();
+  },function(err){
+    console.error('Users error:',err);
+    toast('Firebase қатесі: '+err.message);
   });
 }
 
