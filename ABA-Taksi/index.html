@@ -813,21 +813,19 @@ function listenOrd(){
     var found=null;
     snap.forEach(function(c){
       var v=c.val();
-      if(!found&&v.city===CUR)found=Object.assign({key:c.key},v);
+      if(!found&&v.city===CUR&&v.status==="waiting")found=Object.assign({key:c.key},v);
     });
     if(found){
-      // Тапсырыс бар — бірден көрсет
       showOrd(found);
-      // Тек жаңа тапсырыс болса дыбыс шығар
       if(found.key!==lastOrdKey){
         lastOrdKey=found.key;
         playSound();
-        showNotif("🚕 Жаңа тапсырыс!","📍 "+found.from+" → "+found.to);
         toast("🔔 Жаңа тапсырыс келді!");
+        showNotif("🚕 Жаңа тапсырыс!","📍 "+found.from+" → "+found.to);
       }
     } else {
       lastOrdKey=null;
-      showWt();
+      if(!CK)showWt();
     }
   });
 }
