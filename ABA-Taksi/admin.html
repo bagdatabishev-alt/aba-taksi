@@ -355,16 +355,17 @@ function loadUsers(){
       if(!u.id)u.id=c.key;
       allUsers[c.key]=u;
       if(u.role==='driver')drv++;
-      else pass++; // role==='passenger' немесе role жоқ болса жолаушы
+      else pass++;
     });
     document.getElementById('stat-drivers').textContent=drv;
     document.getElementById('stat-passengers').textContent=pass;
-    renderDrivers(Object.values(allUsers).filter(function(u){return u.role==='driver'}));
-    renderPassengers(Object.values(allUsers).filter(function(u){return u.role!=='driver'}));
+    // Барлық қолданушылар — рөліне қарай бөліп көрсет
+    var all=Object.values(allUsers);
+    renderDrivers(all.filter(function(u){return u.role==='driver'}));
+    renderPassengers(all.filter(function(u){return u.role!=='driver'}));
     renderChatUsers();
     renderStats();
   },function(err){
-    console.error('Users error:',err);
     toast('Firebase қатесі: '+err.message);
   });
 }
@@ -422,11 +423,16 @@ function renderPassengers(passengers){
   var el=document.getElementById('passengers-list');if(!el)return;
   if(!passengers.length){el.innerHTML='<div class="empty">Жолаушылар жоқ</div>';return}
   el.innerHTML=passengers.map(function(u){
+    // Жүргізуші де бола алатын жолаушы
+    var isAlsoDriver=u.carModel&&u.plate;
     return '<div class="card">'+
       '<div class="card-header">'+
-        '<div class="card-avatar">'+(u.photo?'<img src="'+u.photo+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%">':( u.name||'?').slice(0,2).toUpperCase())+'</div>'+
+        '<div class="card-avatar">'+(u.photo?'<img src="'+u.photo+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%">':(u.name||'?').slice(0,2).toUpperCase())+'</div>'+
         '<div class="card-info">'+
-          '<div class="card-name">'+u.name+' <span class="badge '+(u.blocked?'badge-blocked':'badge-offline')+'">'+(u.blocked?'🚫 Блок':'🙋 Жолаушы')+'</span></div>'+
+          '<div class="card-name">'+u.name+
+            ' <span class="badge '+(u.blocked?'badge-blocked':'badge-offline')+'">'+(u.blocked?'🚫 Блок':'🙋 Жолаушы')+'</span>'+
+            (isAlsoDriver?' <span class="badge badge-online" style="font-size:9px">🚗 Жүргізуші де</span>':'')+
+          '</div>'+
           '<div class="card-sub">📞 '+u.phone+'</div>'+
         '</div>'+
         '<div class="card-actions">'+
