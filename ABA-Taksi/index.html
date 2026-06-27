@@ -767,7 +767,9 @@ function listenOrd(){
     var found=null;
     snap.forEach(function(c){
       var v=c.val();
-      if(!found&&v.city===CUR)found=Object.assign({key:c.key},v);
+      // Қала тексеру — city бос болса да қабылдайды
+      if(!found&&(v.city===CUR||!v.city||v.city===undefined))
+        found=Object.assign({key:c.key},v);
     });
     if(found)showOrd(found);
     else if(!CK)showWt();
