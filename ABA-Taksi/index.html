@@ -811,15 +811,20 @@ function listenOrd(){
   DB.ref("orders").orderByChild("status").equalTo("waiting").on("value",function(snap){
     if(!ONLINE)return;
     var found=null;
-    snap.forEach(function(c){var v=c.val();if(!found&&v.city===CUR)found=Object.assign({key:c.key},v)});
+    snap.forEach(function(c){
+      var v=c.val();
+      if(!found&&v.city===CUR)found=Object.assign({key:c.key},v);
+    });
     if(found){
+      // Тапсырыс бар — бірден көрсет
+      showOrd(found);
+      // Тек жаңа тапсырыс болса дыбыс шығар
       if(found.key!==lastOrdKey){
         lastOrdKey=found.key;
         playSound();
-        showNotif("🚕 Жаңа тапсырыс!","📍 "+found.from+" → "+found.to+" | "+found.price+" "+(found.currency||"\u20B8"));
+        showNotif("🚕 Жаңа тапсырыс!","📍 "+found.from+" → "+found.to);
         toast("🔔 Жаңа тапсырыс келді!");
       }
-      showOrd(found);
     } else {
       lastOrdKey=null;
       showWt();
