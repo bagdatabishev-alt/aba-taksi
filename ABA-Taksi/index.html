@@ -751,6 +751,7 @@ function setupD(){
   var dc=document.getElementById("dvc");
   if(dc){if(U.carModel&&U.plate){dc.textContent=U.carModel+(U.carColor?", "+U.carColor:"")+" • "+U.plate;dc.style.color="var(--t)"}else{dc.textContent="Машина тіркелмеген";dc.style.color="var(--r)"}}
 }
+function showWt(){document.getElementById("dar").innerHTML="<div class='no'><div style='font-size:46px'>🚕</div><div style='font-size:13px;color:var(--t);line-height:1.6'>Тапсырыс күтілуде...<br/><span style='color:var(--m);font-size:11px'>Жолаушылар іздеуде</span></div></div>";}
 function togOnline(){
   ONLINE=!ONLINE;
   document.getElementById("dtg").classList.toggle("on",ONLINE);
