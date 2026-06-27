@@ -344,10 +344,6 @@ function adminLogout(){localStorage.removeItem('aba_admin_auth');document.getEle
 function showAdmin(){document.getElementById('login-screen').style.display='none';document.getElementById('admin-screen').style.display='block'}
 
 // ── INIT ──
-function initAdmin(){
-  loadUsers();loadOrders();loadArchive();
-  setTimeout(function(){renderStats()},1200);
-}
 
 // ── USERS ──
 function loadUsers(){
