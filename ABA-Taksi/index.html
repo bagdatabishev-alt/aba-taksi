@@ -756,56 +756,9 @@ function togOnline(){
   document.getElementById("dtg").classList.toggle("on",ONLINE);
   var b=document.getElementById("dsbg");b.textContent=ONLINE?"Онлайн":"Офлайн";b.classList.toggle("on",ONLINE);
   if(DB)DB.ref("users/"+U.id).update({online:ONLINE});
-  if(ONLINE){
-    // Хабарландыру рұқсатын сұра
-    if(window.Notification&&Notification.permission==="default"){
-      Notification.requestPermission();
-    }
-    showWt();listenOrd();
-  } else {
-    lastOrdKey=null;
-    document.getElementById("dar").innerHTML="<div class='no'><div style='font-size:46px'>🟡</div><div style='font-size:13px;line-height:1.6'>Желіге қосылыңыз<br/>тапсырыстарды қабылдау үшін</div></div>";
-  }
+  if(ONLINE){showWt();listenOrd();}
+  else{document.getElementById("dar").innerHTML="<div class='no'><div style='font-size:46px'>🟡</div><div style='font-size:13px;line-height:1.6'>Желіге қосылыңыз<br/>тапсырыстарды қабылдау үшін</div></div>";}
 }
-function playSound(){
-  try{
-    var ctx=new (window.AudioContext||window.webkitAudioContext)();
-    // Дыбыс 1
-    var o1=ctx.createOscillator();var g1=ctx.createGain();
-    o1.connect(g1);g1.connect(ctx.destination);
-    o1.frequency.value=880;g1.gain.setValueAtTime(0.3,ctx.currentTime);
-    g1.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.3);
-    o1.start(ctx.currentTime);o1.stop(ctx.currentTime+0.3);
-    // Дыбыс 2
-    var o2=ctx.createOscillator();var g2=ctx.createGain();
-    o2.connect(g2);g2.connect(ctx.destination);
-    o2.frequency.value=1100;g2.gain.setValueAtTime(0.3,ctx.currentTime+0.35);
-    g2.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.65);
-    o2.start(ctx.currentTime+0.35);o2.stop(ctx.currentTime+0.65);
-    // Дыбыс 3
-    var o3=ctx.createOscillator();var g3=ctx.createGain();
-    o3.connect(g3);g3.connect(ctx.destination);
-    o3.frequency.value=1320;g3.gain.setValueAtTime(0.4,ctx.currentTime+0.7);
-    g3.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+1.1);
-    o3.start(ctx.currentTime+0.7);o3.stop(ctx.currentTime+1.1);
-  }catch(e){console.log("Sound error:",e)}
-  // Дірілдеу
-  if(navigator.vibrate)navigator.vibrate([200,100,200,100,400]);
-}
-
-function showNotif(title,body){
-  // Браузер хабарландыруы
-  if(window.Notification){
-    if(Notification.permission==="granted"){
-      new Notification(title,{body:body,icon:"./icon-192.png"});
-    } else if(Notification.permission!=="denied"){
-      Notification.requestPermission().then(function(p){
-        if(p==="granted")new Notification(title,{body:body,icon:"./icon-192.png"});
-      });
-    }
-  }
-}
-var lastOrdKey=null;
 function listenOrd(){
   if(!DB)return;
   DB.ref("orders").orderByChild("status").equalTo("waiting").on("value",function(snap){
@@ -813,30 +766,48 @@ function listenOrd(){
     var found=null;
     snap.forEach(function(c){
       var v=c.val();
-      if(!found&&v.city===CUR&&v.status==="waiting")found=Object.assign({key:c.key},v);
+      if(!found&&v.city===CUR)found=Object.assign({key:c.key},v);
     });
-    if(found){
-      showOrd(found);
-      if(found.key!==lastOrdKey){
-        lastOrdKey=found.key;
-        playSound();
-        toast("🔔 Жаңа тапсырыс келді!");
-        showNotif("🚕 Жаңа тапсырыс!","📍 "+found.from+" → "+found.to);
-      }
-    } else {
-      lastOrdKey=null;
-      if(!CK)showWt();
-    }
+    if(found)showOrd(found);
+    else if(!CK)showWt();
   });
 }
 function showOrd(order){
-  var fc=order.fromCoord||order.from;var tc=order.toCoord||order.to;
+  var fc=order.fromCoord||order.from;
+  var tc=order.toCoord||order.to;
   var isC=function(s){return /^-?[0-9]/.test(s)};
-  var fF=isC(fc)?fc:fc+", "+gc().cn;var tF=isC(tc)?tc:tc+", "+gc().cn;
+  var fF=isC(fc)?fc:fc+", "+gc().cn;
+  var tF=isC(tc)?tc:tc+", "+gc().cn;
   var mu="https://www.google.com/maps/dir/?api=1&origin="+encodeURIComponent(fF)+"&destination="+encodeURIComponent(tF)+"&travelmode=driving";
   var sy=order.currency||gs();
-  document.getElementById("dar").innerHTML="<div class='oreq'><div class='ort'>🔔 Жаңа тапсырыс!</div><div style='margin-bottom:9px'><div class='ori'><div class='ord' style='background:var(--g)'></div><div class='ortx'>"+order.from+"</div></div><div style='width:2px;height:9px;background:var(--d4);margin-left:3px;margin-bottom:2px'></div><div class='ori'><div class='ord' style='background:var(--r)'></div><div class='ortx'>"+order.to+"</div></div></div><div class='om'><div class='omi'><div class='omv'>"+order.price+" "+sy+"</div><div class='oml'>Баға</div></div><div class='omi'><div class='omv'>"+order.tariff+"</div><div class='oml'>Тариф</div></div><div class='omi'><div class='omv'>"+(order.passengerName||"").split(" ")[0]+"</div><div class='oml'>Жолаушы</div></div></div><a href='"+mu+"' target='_blank' style='display:flex;align-items:center;justify-content:center;gap:7px;background:rgba(66,133,244,.15);border:1px solid rgba(66,133,244,.3);border-radius:8px;padding:9px;margin-bottom:9px;color:#4285f4;font-weight:700;font-size:12px;text-decoration:none'>🗺️ Google Maps</a><div class='acr'><button class='bac' onclick='accOrd(\""+order.key+"\","+order.price+",\""+encodeURIComponent(fc)+"\",\""+encodeURIComponent(tc)+"\",\""+sy+"\")'>✓ Қабылдау</button><button class='bre' onclick='rejOrd(\""+order.key+"\")'>✗ Өткізу</button></div></div>";
-  DB.ref("orders/"+order.key).on("value",function(snap){var d=snap.val();if(d&&d.status==="cancelled"){toast("⚠️ Жолаушы бас тартты!");DB.ref("orders/"+order.key).off();showWt()}});
+  var ok=order.key;
+  document.getElementById("dar").innerHTML=
+    "<div class='oreq'>"+
+    "<div class='ort'>🔔 Жаңа тапсырыс!</div>"+
+    "<div style='margin-bottom:9px'>"+
+      "<div class='ori'><div class='ord' style='background:var(--g)'></div><div class='ortx'>"+order.from+"</div></div>"+
+      "<div style='width:2px;height:9px;background:var(--d4);margin-left:3px;margin-bottom:2px'></div>"+
+      "<div class='ori'><div class='ord' style='background:var(--r)'></div><div class='ortx'>"+order.to+"</div></div>"+
+    "</div>"+
+    "<div class='om'>"+
+      "<div class='omi'><div class='omv'>"+order.price+" "+sy+"</div><div class='oml'>Баға</div></div>"+
+      "<div class='omi'><div class='omv'>"+(order.tariff||"—")+"</div><div class='oml'>Тариф</div></div>"+
+      "<div class='omi'><div class='omv'>"+(order.passengerName||"—").split(" ")[0]+"</div><div class='oml'>Жолаушы</div></div>"+
+    "</div>"+
+    "<a href='"+mu+"' target='_blank' style='display:flex;align-items:center;justify-content:center;gap:7px;background:rgba(66,133,244,.15);border:1px solid rgba(66,133,244,.3);border-radius:8px;padding:9px;margin-bottom:9px;color:#4285f4;font-weight:700;font-size:12px;text-decoration:none'>🗺️ Google Maps маршруты</a>"+
+    "<div class='acr'>"+
+      "<button class='bac' onclick=\"accOrd('"+ok+"',"+order.price+",'"+encodeURIComponent(fc)+"','"+encodeURIComponent(tc)+"','"+sy+"')\">✓ Қабылдау</button>"+
+      "<button class='bre' onclick=\"rejOrd('"+ok+"')\">✗ Өткізу</button>"+
+    "</div>"+
+    "</div>";
+  DB.ref("orders/"+ok).on("value",function(snap){
+    var d=snap.val();
+    if(d&&d.status==="cancelled"){
+      toast("⚠️ Жолаушы бас тартты!");
+      DB.ref("orders/"+ok).off();
+      showWt();
+    }
+  });
 }
 function accOrd(ok,price,fe,te,sy){
   var from=decodeURIComponent(fe);var to=decodeURIComponent(te);
