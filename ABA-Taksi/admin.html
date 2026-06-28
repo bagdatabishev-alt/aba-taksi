@@ -511,17 +511,38 @@ function filterPassengers(q){renderPassengers(Object.values(allUsers).filter(fun
 
 // ── BLOCK / DELETE ──
 function getDocStatus(u){
-  if(!u.docs)return '';
+  if(!u.docs)return'';
   var today=new Date();today.setHours(0,0,0,0);
   var warn7=new Date(today);warn7.setDate(warn7.getDate()+7);
-  var docNames={licExp:"🪪 Куәлік",techExp:"🚗 Техбайқау",insExp:"🛡️ Сақтандыру"};
-  var html='<div style="margin-top:8px;border-top:1px solid var(--dark4);padding-top:8px">';
-  Object.keys(docNames).forEach(function(k){
-    if(!u.docs[k])return;
-    var d=new Date(u.docs[k]);d.setHours(0,0,0,0);
-    var color=d<today?'var(--danger)':d<=warn7?'orange':'var(--success)';
-    var icon=d<today?'❌':d<=warn7?'⚠️':'✅';
-    html+='<div class="detail-row"><span class="detail-label">'+docNames[k]+'</span><span class="detail-val" style="color:'+color+'">'+icon+' '+u.docs[k]+'</span></div>';
+  var docs=[
+    {key:'licExp',photo:'licPhoto',name:'🪪 Жүргізуші куәлігі'},
+    {key:'techExp',photo:'techPhoto',name:'🚗 Техникалық байқау'},
+    {key:'insExp',photo:'insPhoto',name:'🛡️ Сақтандыру'}
+  ];
+  var html='<div style="margin-top:10px;border-top:1px solid var(--dark4);padding-top:10px">';
+  html+='<div style="font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">📋 Құжаттар</div>';
+  docs.forEach(function(doc){
+    var exp=u.docs[doc.key]||'';
+    var photo=u.docs[doc.photo]||'';
+    var color='var(--muted)';var icon='—';
+    if(exp){
+      var d=new Date(exp);d.setHours(0,0,0,0);
+      if(d<today){color='var(--danger)';icon='❌';}
+      else if(d<=warn7){color='orange';icon='⚠️';}
+      else{color='var(--success)';icon='✅';}
+    }
+    html+='<div style="margin-bottom:10px">';
+    html+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">';
+    html+='<span style="font-size:12px;font-weight:600">'+doc.name+'</span>';
+    html+='<span style="font-size:12px;color:'+color+';font-weight:700">'+icon+' '+(exp||'Жоқ')+'</span>';
+    html+='</div>';
+    if(photo){
+      html+='<img src="'+photo+'" style="width:100%;border-radius:8px;max-height:150px;object-fit:cover;border:2px solid var(--dark4);cursor:pointer" onclick="this.style.maxHeight=this.style.maxHeight===\'none\'?\'150px\':\'none\'"/>';
+      html+='<div style="font-size:10px;color:var(--muted);margin-top:3px;text-align:center">👆 Үлкейту үшін басыңыз</div>';
+    } else {
+      html+='<div style="background:var(--dark3);border-radius:8px;padding:10px;text-align:center;font-size:12px;color:var(--muted)">📷 Фото жүктелмеген</div>';
+    }
+    html+='</div>';
   });
   html+='</div>';
   return html;

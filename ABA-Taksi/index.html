@@ -163,10 +163,34 @@ body{font-family:Manrope,sans-serif;background:var(--d);color:var(--t);min-heigh
 <div class="f"><label>Номер</label><input type="text" id="reg-cp" placeholder="A 777 BC"/></div>
 <div class="f"><label>Куәлік №</label><input type="text" id="reg-cl" placeholder="12345678"/></div>
 <div style="background:var(--d3);border-radius:10px;padding:12px;margin-bottom:10px">
-<div style="font-size:11px;color:var(--g);font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">📋 Құжат мерзімдері</div>
-<div class="f"><label>🪪 Жүргізуші куәлігі мерзімі</label><input type="date" id="reg-lic-exp" style="color-scheme:dark"/></div>
-<div class="f"><label>🚗 Техникалық байқау мерзімі</label><input type="date" id="reg-tech-exp" style="color-scheme:dark"/></div>
-<div class="f"><label>🛡️ Сақтандыру (ОСАГО) мерзімі</label><input type="date" id="reg-ins-exp" style="color-scheme:dark"/></div>
+  <div style="font-size:11px;color:var(--g);font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">📋 Құжаттар (фото + мерзім)</div>
+  
+  <div class="f"><label>🪪 Жүргізуші куәлігі мерзімі</label><input type="date" id="reg-lic-exp" style="color-scheme:dark"/></div>
+  <div style="margin-bottom:10px">
+    <label style="font-size:10px;color:var(--m);font-weight:700;text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:4px">🪪 Жүргізуші куәлігі фотосы</label>
+    <div id="lic-prev" style="display:none;margin-bottom:6px"><img id="lic-img" style="width:100%;border-radius:8px;max-height:120px;object-fit:cover"/></div>
+    <label style="display:flex;align-items:center;gap:8px;background:var(--d4);border-radius:8px;padding:10px;cursor:pointer;font-size:13px;color:var(--m)">
+      📷 Фото жүктеу<input type="file" id="reg-lic-photo" accept="image/*" style="display:none" onchange="prevDoc(this,'lic')"/>
+    </label>
+  </div>
+
+  <div class="f"><label>🚗 Техникалық байқау мерзімі</label><input type="date" id="reg-tech-exp" style="color-scheme:dark"/></div>
+  <div style="margin-bottom:10px">
+    <label style="font-size:10px;color:var(--m);font-weight:700;text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:4px">🚗 Техпаспорт фотосы</label>
+    <div id="tech-prev" style="display:none;margin-bottom:6px"><img id="tech-img" style="width:100%;border-radius:8px;max-height:120px;object-fit:cover"/></div>
+    <label style="display:flex;align-items:center;gap:8px;background:var(--d4);border-radius:8px;padding:10px;cursor:pointer;font-size:13px;color:var(--m)">
+      📷 Фото жүктеу<input type="file" id="reg-tech-photo" accept="image/*" style="display:none" onchange="prevDoc(this,'tech')"/>
+    </label>
+  </div>
+
+  <div class="f"><label>🛡️ Сақтандыру мерзімі</label><input type="date" id="reg-ins-exp" style="color-scheme:dark"/></div>
+  <div style="margin-bottom:6px">
+    <label style="font-size:10px;color:var(--m);font-weight:700;text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:4px">🛡️ Сақтандыру фотосы</label>
+    <div id="ins-prev" style="display:none;margin-bottom:6px"><img id="ins-img" style="width:100%;border-radius:8px;max-height:120px;object-fit:cover"/></div>
+    <label style="display:flex;align-items:center;gap:8px;background:var(--d4);border-radius:8px;padding:10px;cursor:pointer;font-size:13px;color:var(--m)">
+      📷 Фото жүктеу<input type="file" id="reg-ins-photo" accept="image/*" style="display:none" onchange="prevDoc(this,'ins')"/>
+    </label>
+  </div>
 </div>
 </div>
 <button class="bp" onclick="doReg()">Тіркелу</button></div></div>
@@ -413,7 +437,10 @@ function doReg(){
   var licExp=SROLE==="driver"?(document.getElementById("reg-lic-exp").value||""):"";
   var techExp=SROLE==="driver"?(document.getElementById("reg-tech-exp").value||""):"";
   var insExp=SROLE==="driver"?(document.getElementById("reg-ins-exp").value||""):"";
-  var docs=SROLE==="driver"?{licExp:licExp,techExp:techExp,insExp:insExp}:{};
+  var licPhoto=SROLE==="driver"?(document.getElementById("reg-lic-photo").getAttribute("data-b64")||""):"";
+  var techPhoto=SROLE==="driver"?(document.getElementById("reg-tech-photo").getAttribute("data-b64")||""):"";
+  var insPhoto=SROLE==="driver"?(document.getElementById("reg-ins-photo").getAttribute("data-b64")||""):"";
+  var docs=SROLE==="driver"?{licExp:licExp,techExp:techExp,insExp:insExp,licPhoto:licPhoto,techPhoto:techPhoto,insPhoto:insPhoto}:{};
   DB.ref("users/"+key).get().then(function(snap){
     if(snap.exists()){
       var ex=snap.val();
@@ -729,6 +756,15 @@ function loadH(){
     var items=[];snap.forEach(function(c){var v=c.val();if(v.status==="completed")items.unshift(v)});
     if(!items.length){el.innerHTML="<div style='text-align:center;color:var(--m);padding:50px 18px;font-size:13px'>Сапар тарихы жоқ</div>";return}
     el.innerHTML=items.map(function(item){return "<div class='hi'><div class='hr2'><div class='hrt'>"+(item.from||"—")+" → "+(item.to||"—")+"</div><div class='hp'>"+(item.price||0)+" "+(item.currency||"\u20B8")+"</div></div><div class='hm'><span class='htg'>"+(ROLE==="driver"?"🙋 "+(item.passengerName||"—"):"🚗 "+(item.driverName||"—"))+"</span><span class='htg'>•</span><span class='htg'>"+(item.tariff||"—")+"</span><span class='htg'>•</span><span class='htg'>"+(item.createdAt?new Date(item.createdAt).toLocaleDateString("ru-RU"):"—")+"</span></div></div>"}).join("");
+  });
+}
+function prevDoc(input,type){
+  var file=input.files[0];if(!file)return;
+  compress(file,800,function(b64){
+    var prev=document.getElementById(type+"-prev");
+    var img=document.getElementById(type+"-img");
+    if(prev&&img){prev.style.display="block";img.src=b64}
+    input.setAttribute("data-b64",b64);
   });
 }
 function compress(file,size,cb){
