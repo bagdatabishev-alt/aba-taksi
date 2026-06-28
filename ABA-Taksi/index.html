@@ -157,7 +157,18 @@ body{font-family:Manrope,sans-serif;background:var(--d);color:var(--t);min-heigh
 <div id="tl"><div class="f"><label>Телефон</label><input type="tel" id="lp" placeholder="+7 777 123 45 67"/></div><div class="f"><label>Құпия сөз</label><input type="password" id="lw" placeholder="••••••"/></div><div class="em" id="le">Телефон немесе пароль қате</div><button class="bp" onclick="doLogin()">Кіру</button></div>
 <div id="tr" style="display:none"><div class="f"><label>Аты-жөні</label><input type="text" id="rn" placeholder="Айгерім Бекова"/></div><div class="f"><label>Телефон</label><input type="tel" id="rp" placeholder="+7 777 123 45 67"/></div><div class="f"><label>Құпия сөз</label><input type="password" id="rw" placeholder="Кемінде 6 символ"/></div><div class="em" id="re"></div>
 <div class="st" style="margin-bottom:7px">Рөл</div><div class="rs"><div class="rb on" id="rpa" onclick="selRole(0)"><span class="ri">🙋</span>Жолаушы</div><div class="rb" id="rda" onclick="selRole(1)"><span class="ri">🚗</span>Жүргізуші</div></div>
-<div id="crf" style="display:none"><div class="f"><label>Машина маркасы</label><input type="text" id="reg-cm" placeholder="Toyota Camry"/></div><div class="f"><label>Машина түсі</label><input type="text" id="reg-cc" placeholder="Ақ"/></div><div class="f"><label>Номер</label><input type="text" id="reg-cp" placeholder="A 777 BC"/></div><div class="f"><label>Куәлік №</label><input type="text" id="reg-cl" placeholder="12345678"/></div></div>
+<div id="crf" style="display:none">
+<div class="f"><label>Машина маркасы</label><input type="text" id="reg-cm" placeholder="Toyota Camry"/></div>
+<div class="f"><label>Машина түсі</label><input type="text" id="reg-cc" placeholder="Ақ"/></div>
+<div class="f"><label>Номер</label><input type="text" id="reg-cp" placeholder="A 777 BC"/></div>
+<div class="f"><label>Куәлік №</label><input type="text" id="reg-cl" placeholder="12345678"/></div>
+<div style="background:var(--d3);border-radius:10px;padding:12px;margin-bottom:10px">
+<div style="font-size:11px;color:var(--g);font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">📋 Құжат мерзімдері</div>
+<div class="f"><label>🪪 Жүргізуші куәлігі мерзімі</label><input type="date" id="reg-lic-exp" style="color-scheme:dark"/></div>
+<div class="f"><label>🚗 Техникалық байқау мерзімі</label><input type="date" id="reg-tech-exp" style="color-scheme:dark"/></div>
+<div class="f"><label>🛡️ Сақтандыру (ОСАГО) мерзімі</label><input type="date" id="reg-ins-exp" style="color-scheme:dark"/></div>
+</div>
+</div>
 <button class="bp" onclick="doReg()">Тіркелу</button></div></div>
 <div id="home-sc" class="sc"><div class="tb"><div><div class="tl">🚕 ABA TAKSI GO</div><div id="cbd" style="font-size:10px;color:var(--m)"></div></div><div style="display:flex;align-items:center;gap:7px"><span id="hun" style="font-size:12px;font-weight:600"></span><div class="av" id="hav">?</div></div></div>
 <div class="ma"><div class="mg"></div><div class="mc">🚕</div><div class="ml" id="onl">🔄 Жүктелуде...</div></div>
@@ -399,6 +410,10 @@ function doReg(){
   var cc=SROLE==="driver"?document.getElementById("reg-cc").value.trim():"";
   var cp=SROLE==="driver"?document.getElementById("reg-cp").value.trim():"";
   var cl=SROLE==="driver"?document.getElementById("reg-cl").value.trim():"";
+  var licExp=SROLE==="driver"?(document.getElementById("reg-lic-exp").value||""):"";
+  var techExp=SROLE==="driver"?(document.getElementById("reg-tech-exp").value||""):"";
+  var insExp=SROLE==="driver"?(document.getElementById("reg-ins-exp").value||""):"";
+  var docs=SROLE==="driver"?{licExp:licExp,techExp:techExp,insExp:insExp}:{};
   DB.ref("users/"+key).get().then(function(snap){
     if(snap.exists()){
       var ex=snap.val();
@@ -408,8 +423,19 @@ function doReg(){
       DB.ref("users/"+key).update(upd).then(function(){U=Object.assign({},ex,upd);ROLE=SROLE;saveSS(U);enterApp()});
       return;
     }
-    var user={id:key,name:name,phone:phone,pass:pass,role:SROLE,trips:0,earn:0,rating:5.0,online:false,car:cm+(cc?", "+cc:""),carModel:cm,carColor:cc,plate:cp,license:cl,verified:SROLE==="driver"?false:true};
-    DB.ref("users/"+key).set(user).then(function(){U=user;ROLE=user.role;saveSS(U);enterApp()});
+    var user={id:key,name:name,phone:phone,pass:pass,role:SROLE,trips:0,earn:0,rating:5.0,online:false,car:cm+(cc?", "+cc:""),carModel:cm,carColor:cc,plate:cp,license:cl,verified:SROLE==="driver"?false:true,docs:docs};
+    DB.ref("users/"+key).set(user).then(function(){
+      U=user;ROLE=user.role;saveSS(U);
+      // Жаңа жүргізуші тіркелді — Админге хабар
+      if(SROLE==="driver"){
+        DB.ref("sos_alerts").push({
+          type:"new_driver",userId:key,userName:name,phone:phone,
+          message:"🆕 Жаңа жүргізуші тіркелді: "+name+" ("+phone+")",
+          time:Date.now()
+        });
+      }
+      enterApp();
+    });
   });
 }
 function enterApp(){
@@ -761,13 +787,43 @@ function setupD(){
       +"<div style='font-size:13px;color:var(--m);line-height:1.6;text-align:center'>Аккаунтыңыз тексерілуде.<br/>Админ растаған соң жұмыс бастай аласыз.<br/><br/>"
       +"<span style='color:var(--t);font-weight:600'>📞 Байланыс: support@abagroup.kz</span></div>"
       +"</div>";
-    // Toggle-ды өшір
     var tog=document.getElementById("dtg");
-    if(tog)tog.style.pointerEvents="none";tog&&(tog.style.opacity="0.4");
-  } else {
-    var tog=document.getElementById("dtg");
-    if(tog){tog.style.pointerEvents="auto";tog.style.opacity="1"}
+    if(tog){tog.style.pointerEvents="none";tog.style.opacity="0.4"}
+    return;
   }
+  // Құжат мерзімін тексеру
+  var today=new Date();today.setHours(0,0,0,0);
+  var warn7=new Date(today);warn7.setDate(warn7.getDate()+7);
+  var expired=[];var expiring=[];
+  var docs=U.docs||{};
+  var docNames={licExp:"🪪 Жүргізуші куәлігі",techExp:"🚗 Техникалық байқау",insExp:"🛡️ Сақтандыру"};
+  Object.keys(docNames).forEach(function(k){
+    if(!docs[k])return;
+    var d=new Date(docs[k]);d.setHours(0,0,0,0);
+    if(d<today)expired.push(docNames[k]);
+    else if(d<=warn7)expiring.push(docNames[k]+" ("+docs[k]+")");
+  });
+  if(expired.length>0){
+    // Автоблок — мерзімі өткен
+    DB.ref("users/"+U.id).update({verified:false,blockedReason:"Құжат мерзімі өтті: "+expired.join(", ")});
+    U.verified=false;saveSS(U);
+    dar.innerHTML="<div class='no' style='padding:30px 20px'>"
+      +"<div style='font-size:48px;margin-bottom:12px'>🚫</div>"
+      +"<div style='font-size:16px;font-weight:800;color:var(--r);margin-bottom:8px'>Құжат мерзімі өтті!</div>"
+      +"<div style='font-size:13px;color:var(--m);line-height:1.6;text-align:center'>"
+      +expired.join("<br/>")+"<br/><br/>"
+      +"Құжаттарды жаңартып, Админге хабарласыңыз.</div>"
+      +"</div>";
+    var tog=document.getElementById("dtg");
+    if(tog){tog.style.pointerEvents="none";tog.style.opacity="0.4"}
+    return;
+  }
+  if(expiring.length>0){
+    // Ескерту — 7 күн қалды
+    toast("⚠️ Құжат мерзімі аяқталуда: "+expiring[0]);
+  }
+  var tog=document.getElementById("dtg");
+  if(tog){tog.style.pointerEvents="auto";tog.style.opacity="1"}
 }
 function showWt(){document.getElementById("dar").innerHTML="<div class='no'><div style='font-size:46px'>🚕</div><div style='font-size:13px;color:var(--t);line-height:1.6'>Тапсырыс күтілуде...<br/><span style='color:var(--m);font-size:11px'>Жолаушылар іздеуде</span></div></div>";}
 function togOnline(){
