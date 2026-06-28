@@ -408,7 +408,7 @@ function doReg(){
       DB.ref("users/"+key).update(upd).then(function(){U=Object.assign({},ex,upd);ROLE=SROLE;saveSS(U);enterApp()});
       return;
     }
-    var user={id:key,name:name,phone:phone,pass:pass,role:SROLE,trips:0,earn:0,rating:5.0,online:false,car:cm+(cc?", "+cc:""),carModel:cm,carColor:cc,plate:cp,license:cl};
+    var user={id:key,name:name,phone:phone,pass:pass,role:SROLE,trips:0,earn:0,rating:5.0,online:false,car:cm+(cc?", "+cc:""),carModel:cm,carColor:cc,plate:cp,license:cl,verified:SROLE==="driver"?false:true};
     DB.ref("users/"+key).set(user).then(function(){U=user;ROLE=user.role;saveSS(U);enterApp()});
   });
 }
@@ -748,10 +748,30 @@ function setupD(){
   if(U.photo)av.innerHTML="<img src='"+U.photo+"' style='width:100%;height:100%;object-fit:cover;border-radius:50%'>";
   else av.textContent=ini(U.name);
   var dc=document.getElementById("dvc");
-  if(dc){if(U.carModel&&U.plate){dc.textContent=U.carModel+(U.carColor?", "+U.carColor:"")+" • "+U.plate;dc.style.color="var(--t)"}else{dc.textContent="Машина тіркелмеген";dc.style.color="var(--r)"}}
+  if(dc){
+    if(U.carModel&&U.plate){dc.textContent=U.carModel+(U.carColor?", "+U.carColor:"")+" • "+U.plate;dc.style.color="var(--t)"}
+    else{dc.textContent="Машина тіркелмеген";dc.style.color="var(--r)"}
+  }
+  // Верификация тексеру
+  var dar=document.getElementById("dar");
+  if(U.verified===false){
+    dar.innerHTML="<div class='no' style='padding:30px 20px'>"
+      +"<div style='font-size:48px;margin-bottom:12px'>⏳</div>"
+      +"<div style='font-size:16px;font-weight:800;color:var(--g);margin-bottom:8px'>Верификация күтілуде</div>"
+      +"<div style='font-size:13px;color:var(--m);line-height:1.6;text-align:center'>Аккаунтыңыз тексерілуде.<br/>Админ растаған соң жұмыс бастай аласыз.<br/><br/>"
+      +"<span style='color:var(--t);font-weight:600'>📞 Байланыс: support@abagroup.kz</span></div>"
+      +"</div>";
+    // Toggle-ды өшір
+    var tog=document.getElementById("dtg");
+    if(tog)tog.style.pointerEvents="none";tog&&(tog.style.opacity="0.4");
+  } else {
+    var tog=document.getElementById("dtg");
+    if(tog){tog.style.pointerEvents="auto";tog.style.opacity="1"}
+  }
 }
 function showWt(){document.getElementById("dar").innerHTML="<div class='no'><div style='font-size:46px'>🚕</div><div style='font-size:13px;color:var(--t);line-height:1.6'>Тапсырыс күтілуде...<br/><span style='color:var(--m);font-size:11px'>Жолаушылар іздеуде</span></div></div>";}
 function togOnline(){
+  if(U&&U.verified===false){toast("⏳ Алдымен верификациядан өтіңіз!");return}
   ONLINE=!ONLINE;
   document.getElementById("dtg").classList.toggle("on",ONLINE);
   var b=document.getElementById("dsbg");b.textContent=ONLINE?"Онлайн":"Офлайн";b.classList.toggle("on",ONLINE);

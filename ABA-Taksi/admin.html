@@ -381,14 +381,16 @@ function renderDrivers(drivers){
   el.innerHTML=drivers.map(function(u){
     var statusClass=u.blocked?'badge-blocked':u.online?'badge-online':'badge-offline';
     var statusText=u.blocked?'🚫 Блок':u.online?'🟢 Онлайн':'⚫ Офлайн';
+    var verifyBadge=u.verified===false?'<span class="badge" style="background:rgba(255,165,0,.2);color:orange">⏳ Тексерілмеген</span>':'<span class="badge badge-online">✅ Расталды</span>';
     return '<div class="card">'+
       '<div class="card-header">'+
         '<div class="card-avatar">'+(u.photo?'<img src="'+u.photo+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%">':u.name.slice(0,2).toUpperCase())+'</div>'+
         '<div class="card-info">'+
-          '<div class="card-name">'+u.name+' <span class="badge '+statusClass+'">'+statusText+'</span></div>'+
+          '<div class="card-name">'+u.name+' <span class="badge '+statusClass+'">'+statusText+'</span> '+verifyBadge+'</div>'+
           '<div class="card-sub">📞 '+u.phone+(u.carModel?' | 🚗 '+u.carModel:'')+(u.plate?' | '+u.plate:'')+'</div>'+
         '</div>'+
         '<div class="card-actions">'+
+          (u.verified===false?'<button class="btn-sm btn-unblock" onclick="verifyDriver(\''+u.id+'\',\''+u.name+'\')">✅ Растау</button>':'')+
           '<button class="btn-sm '+(u.blocked?'btn-unblock':'btn-block')+'" onclick="toggleBlock(\''+u.id+'\','+(!!u.blocked)+')">'+(u.blocked?'✅ Ашу':'🚫 Блок')+'</button>'+
           '<button class="btn-sm btn-delete" onclick="delUser(\''+u.id+'\',\''+u.name+'\')">🗑️</button>'+
         '</div>'+
@@ -507,6 +509,13 @@ function filterDrivers(q){renderDrivers(Object.values(allUsers).filter(function(
 function filterPassengers(q){renderPassengers(Object.values(allUsers).filter(function(u){return u.role!=='driver'&&(u.name.toLowerCase().indexOf(q.toLowerCase())>=0||(u.phone||'').indexOf(q)>=0)}))}
 
 // ── BLOCK / DELETE ──
+function verifyDriver(uid,name){
+  if(!confirm((name||'Жүргізуші')+' ді растайсыз ба?'))return;
+  DB.ref('users/'+uid).update({verified:true}).then(function(){
+    DB.ref('admin_chats/'+uid).push({text:'✅ Верификациядан өттіңіз! Енді тапсырыс қабылдай аласыз.',from:'admin',senderName:'Админ',time:Date.now()});
+    toast('✅ '+(name||'Жүргізуші')+' расталды!');
+  });
+}
 function toggleBlock(userId,isBlocked){DB.ref('users/'+userId).update({blocked:!isBlocked});toast(isBlocked?'✅ Блоктан шығарылды':'🚫 Блокталды')}
 function delUser(userId,name){if(confirm(name+' — өшіру керек пе?')){DB.ref('users/'+userId).remove();toast('🗑️ Өшірілді: '+name)}}
 
