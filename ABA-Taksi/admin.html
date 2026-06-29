@@ -516,7 +516,7 @@ function getDocStatus(u){
   var warn7=new Date(today);warn7.setDate(warn7.getDate()+7);
   var docs=[
     {key:'licExp',photo:'licPhoto',name:'🪪 Жүргізуші куәлігі'},
-    {key:'techExp',photo:'techPhoto',name:'🚗 Техникалық байқау'},
+    {key:'techExp',photo:'techPhoto',name:'🚗 Техосмотр'},
     {key:'insExp',photo:'insPhoto',name:'🛡️ Сақтандыру'}
   ];
   var html='<div style="margin-top:10px;border-top:1px solid var(--dark4);padding-top:10px">';
@@ -554,7 +554,7 @@ function checkExpiry(){
   var warn7=new Date(today);warn7.setDate(warn7.getDate()+7);
   Object.values(allUsers).forEach(function(u){
     if(u.role!=='driver'||!u.docs)return;
-    var docNames={licExp:"Жүргізуші куәлігі",techExp:"Техникалық байқау",insExp:"Сақтандыру"};
+    var docNames={licExp:"Жүргізуші куәлігі",techExp:"Техосмотр",insExp:"Сақтандыру"};
     Object.keys(docNames).forEach(function(k){
       if(!u.docs[k])return;
       var d=new Date(u.docs[k]);d.setHours(0,0,0,0);
@@ -1003,7 +1003,7 @@ var SETTINGS_CONFIG=[
   {key:'referral',icon:'👥',name:'Реферал жүйесі',desc:'Достарды шақырса бонус алады'},
   {group:'📋 Заңдық'},
   {key:'privacy_policy',icon:'📜',name:'Privacy Policy',desc:'Кіргенде пайдаланушы келісімін растауы керек'},
-  {key:'driver_verify',icon:'🪪',name:'Жүргізуші верификациясы',desc:'Куәлік пен техпаспорт тексеруден өту міндетті'},
+  {key:'driver_verify',icon:'🪪',name:'Жүргізуші верификациясы',desc:'Куәлік пен техосмотр тексеруден өту міндетті'},
   {group:'🔔 Хабарландыру'},
   {key:'push_notify',icon:'🔔',name:'Push хабарландыру',desc:'Жаңа тапсырыс келгенде дыбыс және дірілдеу'},
   {key:'sms_verify',icon:'📱',name:'SMS верификация',desc:'Телефон нөмірін SMS арқылы растау'},

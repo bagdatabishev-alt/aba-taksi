@@ -174,9 +174,9 @@ body{font-family:Manrope,sans-serif;background:var(--d);color:var(--t);min-heigh
     </label>
   </div>
 
-  <div class="f"><label>🚗 Техникалық байқау мерзімі</label><input type="date" id="reg-tech-exp" style="color-scheme:dark"/></div>
+  <div class="f"><label>🚗 Техосмотр мерзімі</label><input type="date" id="reg-tech-exp" style="color-scheme:dark"/></div>
   <div style="margin-bottom:10px">
-    <label style="font-size:10px;color:var(--m);font-weight:700;text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:4px">🚗 Техпаспорт фотосы</label>
+    <label style="font-size:10px;color:var(--m);font-weight:700;text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:4px">🚗 Техосмотр фотосы</label>
     <div id="tech-prev" style="display:none;margin-bottom:6px"><img id="tech-img" style="width:100%;border-radius:8px;max-height:120px;object-fit:cover"/></div>
     <label style="display:flex;align-items:center;gap:8px;background:var(--d4);border-radius:8px;padding:10px;cursor:pointer;font-size:13px;color:var(--m)">
       📷 Фото жүктеу<input type="file" id="reg-tech-photo" accept="image/*" style="display:none" onchange="prevDoc(this,'tech')"/>
@@ -832,7 +832,7 @@ function setupD(){
   var warn7=new Date(today);warn7.setDate(warn7.getDate()+7);
   var expired=[];var expiring=[];
   var docs=U.docs||{};
-  var docNames={licExp:"🪪 Жүргізуші куәлігі",techExp:"🚗 Техникалық байқау",insExp:"🛡️ Сақтандыру"};
+  var docNames={licExp:"🪪 Жүргізуші куәлігі",techExp:"🚗 Техосмотр",insExp:"🛡️ Сақтандыру"};
   Object.keys(docNames).forEach(function(k){
     if(!docs[k])return;
     var d=new Date(docs[k]);d.setHours(0,0,0,0);
